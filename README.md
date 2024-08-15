@@ -25,9 +25,9 @@ after that if everything goes well you have a `out_bin` file which is contains b
 
 ## Flags
 
-| Flag            | Name    | Info                                                                    |
-|-----------------|---------|-------------------------------------------------------------------------|
-| `-v`            | Verbose | Show more output than usual, such as lines and int's converted binaries |
-| `-o [filename]` | Output  | To specify the output file's path                                       |
-| `--help`        | Help    | show Help                                                               |
+| Flag            | Name    | Info                                                                         |
+|-----------------|---------|------------------------------------------------------------------------------|
+| `-v`            | Verbose |  Show more output than usual, such as lines and their correspondent binaries |
+| `-o [filename]` | Output  | To specify the output file's path                                            |
+| `--help`        | Help    | show Help                                                                    |
 
