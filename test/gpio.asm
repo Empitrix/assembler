@@ -4,4 +4,3 @@ start:
 	NOP           ; Do nothing (introduce a small delay)
 	BCF GPIO, 0   ; Clear bit 0 of the GPIO register (turn off the LED)
 	GOTO start    ; Jump back to the beginning (infinite loop)
-

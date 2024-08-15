@@ -42,6 +42,14 @@ void str_strip(char *str){
 }
 
 
+void str_ltrim(char *str){
+	int i = 0;
+	int l = (int)strlen(str);
+	i = e_idx(str, l);
+	shift_over(str, i, l);
+}
+
+
 /* char_find: return a first index to the given 'l'etter otherwise return -1 */
 int char_find(char *src, char l){
 	int i;

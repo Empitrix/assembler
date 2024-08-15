@@ -6,48 +6,44 @@
 
 
 int main(int argc, char *argv[]){
+	GFLAGS gf;  // General Flags
 
 	// Check for input arguments
-	if(argc != 2){
-		printf("RUN: \"%s <filename>\"\n", argv[0]);
+	if(argc < 2){
+		printf("RUN: \"%s <filename>\" -[options]\nFor more information use '--help' flag!\n", argv[0]);
+		return 1;
+	}
+
+	// Check for that if the given argument is 'help'
+	if(strcmp(argv[1], "--help") == 0){
+		show_help_info();
 		return 1;
 	}
 
 	// Read the file if possible
 	LINES ior = io_read_file(argv[1]);
 	if(ior.len == -1)
-		return plog("File does not exists", LOG_E, 1);
+		return prtprt(1, "[red]File [yel]\"%s\"[red] does not exists", argv[1]);
 
 
+	update_gfalg(&gf, argc, argv);   // update flags
+
+	// the main lines
 	char **lines;
 	lines = ior.lines;
 
+	// assembely labels
 	int lidx = 0;
 	LABEL labels[MALL];
 
 	int equi = 0;
 	LABEL equ_constants[MALL];
 
-
 	int midx = 0;
 	int machine_code[MALL];
 
 
 	for(int i = 0; i < ior.len; ++i){
-
-		// replace '...' with corrispoding ASCII (exmaple: 'HA' => 72 65)
-		if(char_find(lines[i], '\'') != -1){
-			int k, l = 0;
-			char replace[MALL];
-			k = char_find(lines[i], '\'');
-			l = char_findr(lines[i], '\'', k + 1);
-			if( k != -1 && l != -1){
-				for(int q = k + 1; q < l; ++q){
-					sprintf(replace, "%s%d%s", replace, lines[i][q],(q == l - 1) ? "" : " ");
-				}
-			}
-			str_replacer(lines[i], replace, k, l);
-		}
 
 		// delete comments
 		if(char_find(lines[i], ';') != -1)
@@ -65,7 +61,6 @@ int main(int argc, char *argv[]){
 			continue;
 		}
 
-
 		if(line_contain(lines[i], "EQU")){
 			LINES parts;
 			parts = str_break(lines[i]);
@@ -77,7 +72,6 @@ int main(int argc, char *argv[]){
 			continue;
 		}
 
-		// 42
 		LINES parts;
 		LINES operands;
 		parts = str_break(lines[i]);
@@ -86,9 +80,11 @@ int main(int argc, char *argv[]){
 
 		int instruction = 0;
 
+
+		int bbb_size = 3;
+		int ffff_size = 5;
+
 		if(strcmp(opcode, "BSF") == 0){
-			int bbb_size = 3;
-			int ffff_size = 5;
 			char *reg = operands.lines[0];
 			int regn = 0;
 			int bit = atoi(operands.lines[1]);
@@ -106,12 +102,11 @@ int main(int argc, char *argv[]){
 				printf("Invalid register: '%d' at line {%d}:\n\t%s\n", regn, i + 1, ior.lines[i]);
 				return 1;
 			}
+
 			// instruction = 0x500 | (bit << 4) | regn;
 			instruction = 0b010100000000 | (bit << 4) | regn;
 
 		} else if (strcmp(opcode, "BCF") == 0){
-			int bbb_size = 3;
-			int ffff_size = 5;
 			char *reg = operands.lines[0];
 			int regn = 0;
 			int bit = atoi(operands.lines[1]);
@@ -141,6 +136,7 @@ int main(int argc, char *argv[]){
 			}
 
 			instruction = 0b101000000000 | address;
+
 		} else if (strcmp(opcode, "NOP") == 0){
 			instruction = 0b000000000000;
 		} else
@@ -154,20 +150,22 @@ int main(int argc, char *argv[]){
 			machine_code[midx++] = instruction;
 
 
-		str_strip(lines[i]);
-		// printf("%s %20s\n", lines[i], decimal_to_binary(instruction));
-		printf("%s\n", decimal_to_binary(instruction));
+		if(gf.verbose){
+			str_ltrim(lines[i]);
+			printf("%s %s\n", lines[i], decimal_to_binary(instruction));
+		}
 	}
 
 
-	// LINES ss;
-	// char ssrc[MALL] = "This is    Super";
-	// ss = str_break(ssrc);
-	// for(int i = 0; i < ss.len; ++i)
-	// 	printf("%d> {%s}\n", i, ss.lines[i]);
-
-	// char lll[MALL] = "Leo Alex David";
-	// printf("LLL: %d\n", line_contain(lll, "James"));
+	// Write data
+	LINES write_buff;
+	write_buff.len = midx;
+	write_buff.lines = malloc(MAFL * sizeof(char *));
+	for(int i = 0; i < midx; i++){
+		write_buff.lines[i] = malloc(MAFL * sizeof(char));
+		strcpy(write_buff.lines[i], decimal_to_binary(machine_code[midx]));
+	}
+	io_write_file(gf.filename, write_buff);
 
 	return 0;
 }

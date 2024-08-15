@@ -1,1 +1,5 @@
 *.out
+*.hex
+*.exe
+/out_bin
+out_bin

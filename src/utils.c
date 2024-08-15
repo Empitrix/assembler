@@ -6,7 +6,6 @@
 #include "strfy.h"
 
 
-
 /* cbuff: Clear Buffer */
 void cbuff(char *buff, int l){
 	for(int i = 0; i < l; ++i)
@@ -14,51 +13,29 @@ void cbuff(char *buff, int l){
 }
 
 
-
-/************ LOG ************/
-#define KNRM  "\x1B[0m"
-#define KRED  "\x1B[31m"
-#define KGRN  "\x1B[32m"
-#define KYEL  "\x1B[33m"
-#define KBLU  "\x1B[34m"
-
-
-typedef enum LOG_OUT {
-	LOG_I,  // Info
-	LOG_E,  // Error
-	LOG_W,  // Warning
-	LOG_N,  // Normal
-	LOG_S   // Success
-} LOG_OUT;
-
-
-/* plog: Print Log */
-int plog(char *data, LOG_OUT log, int status){
-	switch (log) {
-		case LOG_I:
-			fprintf(stderr, "%s%s%s\n", KBLU, data, KNRM);
-			break;
-		case LOG_E:
-			fprintf(stderr, "%s%s%s\n", KRED, data, KNRM);
-			break;
-		case LOG_N:
-			fprintf(stderr, "%s\n", data);
-			break;
-		case LOG_S:
-			fprintf(stderr, "%s%s%s\n", KGRN, data, KNRM);
-			break;
-		case LOG_W:
-			fprintf(stderr, "%s%s%s\n", KYEL, data, KNRM);
-			if(status != 0){
-				printf("here\n");
-				exit(status);
-			}
-			break;
-		default: break;
-	}
+/* prtprt: formatted print in (color-full) */
+int prtprt(int status, char *frmt, ...) {
+	char buff[MALL];
+	va_list args;
+	va_start(args, frmt);
+	vsprintf(buff, frmt, args);
+	str_replace(buff, "[red]", "\x1B[31m");
+	str_replace(buff, "[grn]", "\x1B[32m");
+	str_replace(buff, "[yel]", "\x1B[33m");
+	str_replace(buff, "[blu]", "\x1B[34m");
+	str_replace(buff, "[nrm]", "\x1B[0m");
+	printf("%s%s\n", buff, "\x1B[0m");
+	va_end(args);
 	return status;
 }
 
+
+void show_help_info(){
+	prtprt(0, "Assembeler for a non-standard 8-bit CPU");
+	prtprt(0, "[blu]'-v'[nrm]              [yel]Verbose   [nrm]To show more output than usual");
+	prtprt(0, "[blu]'-o [filename]'[nrm]   [yel]Output    [nrm]For specifying output file");
+	prtprt(0, "[blu]'--help'[nrm]          [yel]Help      [nrm]To see help menu (this menu)");
+}
 
 
 int int_base16(char *hex) {
@@ -86,66 +63,7 @@ int int_base16(char *hex) {
 }
 
 
-
-// void decimal_to_binary(int decimal) {
-// 	int binary[32]; // Assuming maximum 32-bit integer
-// 	int index = 0;
-// 
-// 	while (decimal > 0) {
-// 		binary[index] = decimal % 2;
-// 		decimal /= 2;
-// 		index++;
-// 	}
-// 
-// 	// Print binary number in reverse order
-// 	for (int i = index - 1; i >= 0; i--) {
-// 		printf("%d", binary[i]);
-// 	}
-// 
-// 	printf("\n");
-// }
-
-
-
-// void decimal_to_binary(int decimal) {
-//     int binary[12] = {0}; // Initialize array with zeros
-//     int index = 11; // Start from the end
-// 
-//     while (decimal > 0 && index >= 0) {
-//         binary[index] = decimal % 2;
-//         decimal /= 2;
-//         index--;
-//     }
-// 
-//     // Print the binary number with leading zeros
-//     for (int i = 0; i < 12; i++) {
-//         printf("%d", binary[i]);
-//     }
-//     printf("\n");
-// }
-
-
-// void decimal_to_binary(int decimal) {
-//     int binary[12] = {0};
-//     int index = 11;
-// 
-//     printf("0b"); // Print the prefix
-// 
-//     while (decimal > 0 && index >= 0) {
-//         binary[index] = decimal % 2;
-//         decimal /= 2;
-//         index--;
-//     }
-// 
-//     // Print the binary number with leading zeros
-//     for (int i = 0; i < 12; i++) {
-//         printf("%d", binary[i]);
-//     }
-//     printf("\n");
-// }
-
-
-
+/* decimal_to_binary: return binary version of given decimal */
 char *decimal_to_binary(int decimal) {
 	char *binary = malloc(13 * sizeof(char));
 
@@ -154,6 +72,7 @@ char *decimal_to_binary(int decimal) {
 	binary[0] = '0';
 	binary[1] = 'b';
 
+	// put all of the '0' ( not '\0' )
 	for(int i = 2; i < 12; i++)
 		binary[i] = '0';
 
@@ -165,3 +84,48 @@ char *decimal_to_binary(int decimal) {
 	binary[12] = '\0';
 	return binary;
 }
+
+
+/* update_gfalg: updage General-Flags with given arguments from user */
+void update_gfalg(GFLAGS *gf, int argc, char *argv[]){
+	int i;
+	int saving = 0;
+
+	gf->verbose = 0;
+	gf->filename = malloc(MALL * sizeof(char));
+	strcpy(gf->filename, "./out_bin");
+
+	for(i = 0; i < argc; ++i){
+
+		if(saving){
+			strcpy(gf->filename, argv[i]);
+			saving = 0;
+			continue;
+		}
+
+		if(strcmp(argv[i], "-o") == 0){
+			saving = 1;
+		}
+
+		if(strcmp(argv[i], "--help") == 0)
+			show_help_info();
+
+		if((saving == 1) && (i == argc - 1)){
+			prtprt(0, "[yel]No output file!\n[nrm]after '-o' needs to be a file name! {%d}", saving);
+			exit(0);
+		}
+
+		for(int j = 0; j < (int)strlen(argv[i]); ++j){
+			if(argv[i][0] == '-'){
+				switch (argv[i][j]) {
+					case 'v':
+						gf->verbose = 1;
+						break;
+					default: break;
+				}
+			}
+		}
+
+	}
+}
+

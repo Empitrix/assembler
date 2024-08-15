@@ -37,3 +37,21 @@ LINES io_read_file(char *path){
 	return ior;
 }
 
+
+
+
+int io_write_file(char *path, LINES lines){
+	FILE *f;
+	int i;
+
+	if((f = fopen(path, "w+")) == NULL){
+		return prtprt(1, "[yel]Failed to write in \"%s\"", path);
+	}
+
+	for(i = 0; i < lines.len; ++i)
+		fprintf(f, "%s\n", lines.lines[i]);
+
+	fclose(f);
+	return 0;
+}
+
