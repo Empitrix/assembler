@@ -89,7 +89,7 @@ int main(int argc, char *argv[]){
 			int regn = 0;
 			int bit = atoi(operands.lines[1]);
 
-			if((regn = get_lable_key_value(equ_constants, equi, reg)) < 0){
+			if((regn = get_label_key_value(equ_constants, equi, reg)) < 0){
 				regn = 0;
 			}
 
@@ -111,7 +111,7 @@ int main(int argc, char *argv[]){
 			int regn = 0;
 			int bit = atoi(operands.lines[1]);
 
-			if((regn = get_lable_key_value(equ_constants, equi, reg)) < 0){
+			if((regn = get_label_key_value(equ_constants, equi, reg)) < 0){
 				regn = 0;
 			}
 
@@ -129,7 +129,7 @@ int main(int argc, char *argv[]){
 
 		} else if (strcmp(opcode, "GOTO") == 0){
 			char *label = operands.lines[0];
-			int address = get_lable_key_value(labels, lidx, label);
+			int address = get_label_key_value(labels, lidx, label);
 			if(address < 0){
 				printf("Undefined label: '%s' at line {%d}\n\t%s\n", label, i + 1, ior.lines[i]);
 				return 1;

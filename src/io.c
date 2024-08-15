@@ -38,8 +38,7 @@ LINES io_read_file(char *path){
 }
 
 
-
-
+/* io_write_file: write given 'LINES' to the file that specified in the 'path' */
 int io_write_file(char *path, LINES lines){
 	FILE *f;
 	int i;

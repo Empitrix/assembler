@@ -27,7 +27,7 @@ after that if everything goes well you have a `out_bin` file which is contains b
 
 | Flag            | Name    | Info                                                                         |
 |-----------------|---------|------------------------------------------------------------------------------|
-| `-v`            | Verbose |  Show more output than usual, such as lines and their correspondent binaries |
+| `-v`            | Verbose | Show more output than usual, such as lines and their correspondent binaries  |
 | `-o [filename]` | Output  | To specify the output file's path                                            |
-| `--help`        | Help    | show Help                                                                    |
+| `--help`        | Help    | Show help menu                                                               |
 

@@ -30,6 +30,7 @@ int prtprt(int status, char *frmt, ...) {
 }
 
 
+/* show_help_info: show help menu (--help) */
 void show_help_info(){
 	prtprt(0, "Assembeler for a non-standard 8-bit CPU");
 	prtprt(0, "[blu]'-v'[nrm]              [yel]Verbose   [nrm]To show more output than usual");
@@ -38,6 +39,7 @@ void show_help_info(){
 }
 
 
+/* convert given 'hex' into int by base 16 (hexadecimal) */
 int int_base16(char *hex) {
 
 	str_replace(hex, "0x", "");  // Remove (0x)...
@@ -65,6 +67,7 @@ int int_base16(char *hex) {
 
 /* decimal_to_binary: return binary version of given decimal */
 char *decimal_to_binary(int decimal) {
+	/* This function can be written using sprintf and '%b' */
 	char *binary = malloc(13 * sizeof(char));
 
 	int index = 11;
@@ -107,14 +110,15 @@ void update_gfalg(GFLAGS *gf, int argc, char *argv[]){
 			saving = 1;
 		}
 
-		if(strcmp(argv[i], "--help") == 0)
-			show_help_info();
+		// if(strcmp(argv[i], "--help") == 0)
+		// 	show_help_info();
 
 		if((saving == 1) && (i == argc - 1)){
 			prtprt(0, "[yel]No output file!\n[nrm]after '-o' needs to be a file name! {%d}", saving);
 			exit(0);
 		}
 
+		// Seach for short flags such as -v, etc...
 		for(int j = 0; j < (int)strlen(argv[i]); ++j){
 			if(argv[i][0] == '-'){
 				switch (argv[i][j]) {

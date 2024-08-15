@@ -42,6 +42,7 @@ void str_strip(char *str){
 }
 
 
+/* str_ltrim: trim all of the whitespaces at the left most of the given 'src' */
 void str_ltrim(char *str){
 	int i = 0;
 	int l = (int)strlen(str);
@@ -155,7 +156,7 @@ void select_char_split(char *target, int idx, char *src, char split){
 }
 
 
-
+/* str_break: breakdown given 'src' into words (split by white spaces)*/
 LINES str_break(char *src){
 	LINES words;
 	words.lines = malloc(MALL * sizeof(char *));
