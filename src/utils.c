@@ -1,6 +1,9 @@
+#include <ctype.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include "strfy.h"
 
 
 
@@ -56,3 +59,109 @@ int plog(char *data, LOG_OUT log, int status){
 	return status;
 }
 
+
+
+int int_base16(char *hex) {
+
+	str_replace(hex, "0x", "");  // Remove (0x)...
+	str_replace(hex, "0X", "");  // Remove (0x)...
+
+	int len = strlen(hex);
+	int decimal = 0;
+
+	for (int i = 0; i < len; i++) {
+		char c = hex[len - i - 1]; // right to left
+		int digit;
+
+		if (isdigit(c)) {
+			digit = c - '0';
+		} else {
+			digit = toupper(c) - 'A' + 10; // letters A..F
+		}
+
+		decimal += digit * pow(16, i);
+	}
+
+	return decimal;
+}
+
+
+
+// void decimal_to_binary(int decimal) {
+// 	int binary[32]; // Assuming maximum 32-bit integer
+// 	int index = 0;
+// 
+// 	while (decimal > 0) {
+// 		binary[index] = decimal % 2;
+// 		decimal /= 2;
+// 		index++;
+// 	}
+// 
+// 	// Print binary number in reverse order
+// 	for (int i = index - 1; i >= 0; i--) {
+// 		printf("%d", binary[i]);
+// 	}
+// 
+// 	printf("\n");
+// }
+
+
+
+// void decimal_to_binary(int decimal) {
+//     int binary[12] = {0}; // Initialize array with zeros
+//     int index = 11; // Start from the end
+// 
+//     while (decimal > 0 && index >= 0) {
+//         binary[index] = decimal % 2;
+//         decimal /= 2;
+//         index--;
+//     }
+// 
+//     // Print the binary number with leading zeros
+//     for (int i = 0; i < 12; i++) {
+//         printf("%d", binary[i]);
+//     }
+//     printf("\n");
+// }
+
+
+// void decimal_to_binary(int decimal) {
+//     int binary[12] = {0};
+//     int index = 11;
+// 
+//     printf("0b"); // Print the prefix
+// 
+//     while (decimal > 0 && index >= 0) {
+//         binary[index] = decimal % 2;
+//         decimal /= 2;
+//         index--;
+//     }
+// 
+//     // Print the binary number with leading zeros
+//     for (int i = 0; i < 12; i++) {
+//         printf("%d", binary[i]);
+//     }
+//     printf("\n");
+// }
+
+
+
+char *decimal_to_binary(int decimal) {
+	char *binary = malloc(13 * sizeof(char));
+
+	int index = 11;
+
+	binary[0] = '0';
+	binary[1] = 'b';
+
+	for(int i = 2; i < 12; i++)
+		binary[i] = '0';
+
+	while (decimal > 0 && index >= 2) {
+		binary[index] = (decimal % 2) + '0';
+		decimal /= 2;
+		index--;
+	}
+	binary[12] = '\0';
+	return binary;
+}

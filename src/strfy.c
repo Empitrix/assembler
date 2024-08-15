@@ -1,4 +1,8 @@
+#include "rules.h"
+#include "structs.h"
+#include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <ctype.h>
 
 
@@ -112,5 +116,88 @@ void str_replace(char *src, char *a, char *b) {
 		memcpy(p, b, len_b);
 		p += len_b;
 	}
+}
+
+
+/* char_split: split the given 'src' give given 'split' */
+char **char_split(char *src, char split){
+	char **lines;
+	lines = malloc(MALL * sizeof(char *));
+	int idx = 0;
+	int j = 0;
+	int l; l = (int)strlen(src);
+	lines[idx] = malloc(MALL * sizeof(char *));
+	for(int i = 0; i < l; ++i){
+		if(src[i] != split){
+			lines[idx][j++] = src[i];
+		} else {
+			lines[++idx] = malloc(MALL * sizeof(char *));
+			j = 0;
+		}
+	}
+	return lines;
+}
+
+
+/* select_char_split: split and select */
+void select_char_split(char *target, int idx, char *src, char split){
+	char **lines;
+	lines = char_split(src, split);
+	strcpy(target, lines[idx]);
+}
+
+
+
+LINES str_break(char *src){
+	LINES words;
+	words.lines = malloc(MALL * sizeof(char *));
+	int idx = 0;
+	words.lines[idx] = malloc(MALL * sizeof(char *));
+
+	int l, j; l = (int)strlen(src);
+	j = 0;
+
+	for(int i = 0; i < l; ++i){
+		if(isspace(src[i]) == 0){
+			words.lines[idx][j++] = src[i];
+		} else {
+			if((int)strlen(words.lines[idx]) != 0){
+				words.lines[++idx] = malloc(MALL * sizeof(char *));
+				j = 0;
+			}
+		}
+	}
+
+	// TODO: there is an error for +1 taht I don't get it
+	words.len = idx;
+	return words;
+}
+
+/* line_contain: check that the given 'sub' is in the 'main' */
+int line_contain(char *main, char *sub){
+	LINES bl;
+	bl = str_break(main);
+	for(int i = 0; i < bl.len; ++i)
+		if(strcmp(bl.lines[i], sub) == 0)
+			return 1;
+	return 0;
+}
+
+
+/* get_str_slice: return the given range of type (char **) */
+LINES get_str_slice(LINES src, int start){
+	LINES l;
+	l.lines = malloc(MALL * sizeof(char *));
+	int i, j;
+	j = 0;
+	for(i = start; i < src.len; ++i){
+		l.lines[j] = malloc(MALL * sizeof(char *));
+		strcpy(l.lines[j], src.lines[i]);
+		j++;
+	}
+	l.len = src.len - start;
+	if(l.len < 0)
+		l.len = 0;
+	return l;
 }
 

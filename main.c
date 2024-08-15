@@ -1,6 +1,8 @@
 #include <stdio.h>
+#include <string.h>
 #include "src/io.h"
 #include "src/strfy.h"
+#include "src/structs.h"
 
 
 int main(int argc, char *argv[]){
@@ -12,7 +14,7 @@ int main(int argc, char *argv[]){
 	}
 
 	// Read the file if possible
-	IO_READ ior = io_read_file(argv[1]);
+	LINES ior = io_read_file(argv[1]);
 	if(ior.len == -1)
 		return plog("File does not exists", LOG_E, 1);
 
@@ -20,14 +22,15 @@ int main(int argc, char *argv[]){
 	char **lines;
 	lines = ior.lines;
 
-	unsigned char lineinfo_none  = '\x00';
-	unsigned char lineinfo_org   = '\x10';
-	unsigned char lineinfo_begin = '\x20';
-	unsigned char lineinfo_end   = '\x40';
+	int lidx = 0;
+	LABEL labels[MALL];
 
-	unsigned char lineinfo[MALL];
-	int lineinfo_idx = 0;
+	int equi = 0;
+	LABEL equ_constants[MALL];
 
+
+	int midx = 0;
+	int machine_code[MALL];
 
 
 	for(int i = 0; i < ior.len; ++i){
@@ -53,24 +56,118 @@ int main(int argc, char *argv[]){
 		// replace commas with spaces
 		char_replace(lines[i], ',', ' ');
 
-
-
-		lineinfo[lineinfo_idx] = lineinfo_none;
-		if(str_find(lines[i], "#begin") != -1){
-			lineinfo[i] |= lineinfo_begin;
-			str_replace(lines[i], "#begin", "");
-		}
-		if(str_find(lines[i], "#end") != -1){
-			lineinfo[i] |= lineinfo_end;
-			str_replace(lines[i], "#end", "");
+		// lable found
+		if(char_find(lines[i], ':') != -1){
+			char label_name[MALL];
+			select_char_split(label_name, 0, lines[i], ':');
+			str_strip(label_name);
+			labels[lidx++] = (LABEL){label_name, midx};
+			continue;
 		}
 
-		int k = 0;
-		k = str_find(lines[i], "#org");
-		// line: 60
 
-		printf(">%s<\n", lines[i]);
+		if(line_contain(lines[i], "EQU")){
+			LINES parts;
+			parts = str_break(lines[i]);
+			if(parts.len != 3){
+				printf("Invalid 'EQU' at line (%d):\n\t%s\n", i + 1, ior.lines[i]);
+				return 1;
+			}
+			equ_constants[equi++] = (LABEL){parts.lines[0], int_base16(parts.lines[2])};
+			continue;
+		}
+
+		// 42
+		LINES parts;
+		LINES operands;
+		parts = str_break(lines[i]);
+		char *opcode = parts.lines[0];
+		operands = get_str_slice(parts, 1);
+
+		int instruction = 0;
+
+		if(strcmp(opcode, "BSF") == 0){
+			int bbb_size = 3;
+			int ffff_size = 5;
+			char *reg = operands.lines[0];
+			int regn = 0;
+			int bit = atoi(operands.lines[1]);
+
+			if((regn = get_lable_key_value(equ_constants, equi, reg)) < 0){
+				regn = 0;
+			}
+
+			if (bit > (1 << bbb_size) - 1){
+				printf("Invalid bit: '%d' at line {%d}:\n\t%s\n", bit, i + 1, ior.lines[i]);
+				return 1;
+			}
+
+			if(regn > (1 << ffff_size) - 1){
+				printf("Invalid register: '%d' at line {%d}:\n\t%s\n", regn, i + 1, ior.lines[i]);
+				return 1;
+			}
+			// instruction = 0x500 | (bit << 4) | regn;
+			instruction = 0b010100000000 | (bit << 4) | regn;
+
+		} else if (strcmp(opcode, "BCF") == 0){
+			int bbb_size = 3;
+			int ffff_size = 5;
+			char *reg = operands.lines[0];
+			int regn = 0;
+			int bit = atoi(operands.lines[1]);
+
+			if((regn = get_lable_key_value(equ_constants, equi, reg)) < 0){
+				regn = 0;
+			}
+
+			if (bit > (1 << bbb_size) - 1){
+				printf("Invalid bit: '%d' at line {%d}:\n\t%s\n", bit, i + 1, ior.lines[i]);
+				return 1;
+			}
+
+			if(regn > (1 << ffff_size) - 1){
+				printf("Invalid register: '%d' at line {%d}:\n\t%s\n", regn, i + 1, ior.lines[i]);
+				return 1;
+			}
+
+			instruction = 0b010000000000 | (bit << 4) | regn;
+
+		} else if (strcmp(opcode, "GOTO") == 0){
+			char *label = operands.lines[0];
+			int address = get_lable_key_value(labels, lidx, label);
+			if(address < 0){
+				printf("Undefined label: '%s' at line {%d}\n\t%s\n", label, i + 1, ior.lines[i]);
+				return 1;
+			}
+
+			instruction = 0b101000000000 | address;
+		} else if (strcmp(opcode, "NOP") == 0){
+			instruction = 0b000000000000;
+		} else
+			if(strcmp(opcode, "") != 0)
+				printf("Invalid opcode: '%s'\n", opcode);
+			else
+				continue;
+
+
+		if(instruction >= 0)
+			machine_code[midx++] = instruction;
+
+
+		str_strip(lines[i]);
+		// printf("%s %20s\n", lines[i], decimal_to_binary(instruction));
+		printf("%s\n", decimal_to_binary(instruction));
 	}
+
+
+	// LINES ss;
+	// char ssrc[MALL] = "This is    Super";
+	// ss = str_break(ssrc);
+	// for(int i = 0; i < ss.len; ++i)
+	// 	printf("%d> {%s}\n", i, ss.lines[i]);
+
+	// char lll[MALL] = "Leo Alex David";
+	// printf("LLL: %d\n", line_contain(lll, "James"));
 
 	return 0;
 }

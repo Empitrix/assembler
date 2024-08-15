@@ -1,19 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "rules.h"
+#include "structs.h"
 #include "utils.c"
-
-typedef struct IO_READ {
-	char **lines;   // lines (without '\n')
-	int len;        // length of lines
-} IO_READ;
 
 
 /* io_read_file: Read the lines of the given file, if length not positive file not exists */
-IO_READ io_read_file(char *path){
+LINES io_read_file(char *path){
 	FILE *f;
 	int c;
-	IO_READ ior;
+	LINES ior;
 	ior.lines = malloc(MAFL * sizeof(char *));
 	int idx;
 
