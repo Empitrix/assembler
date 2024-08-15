@@ -163,7 +163,7 @@ int main(int argc, char *argv[]){
 	write_buff.lines = malloc(MAFL * sizeof(char *));
 	for(int i = 0; i < midx; i++){
 		write_buff.lines[i] = malloc(MAFL * sizeof(char));
-		strcpy(write_buff.lines[i], decimal_to_binary(machine_code[midx]));
+		strcpy(write_buff.lines[i], decimal_to_binary(machine_code[i]));
 	}
 	io_write_file(gf.filename, write_buff);
 
