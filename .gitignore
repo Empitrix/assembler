@@ -2,4 +2,5 @@
 *.hex
 *.exe
 /out_bin
+/assembeler
 out_bin
