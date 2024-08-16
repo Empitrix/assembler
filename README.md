@@ -21,7 +21,7 @@ for example:
 ```bash
 ./assembler ./test/gpio.asm
 ```
-after that if everything goes well you have a `out_bin` file which is contains binary data of given assembly file.
+after that if everything goes well you have a `asm_out_bin` file which is contains binary data of given assembly file.
 
 ## Flags
 

@@ -54,3 +54,24 @@ int io_write_file(char *path, LINES lines){
 	return 0;
 }
 
+
+void io_write_file_bin(char *path, int buff[], int len) {
+
+	FILE *fp;
+
+	if((fp = fopen(path, "wb+")) == NULL){
+		prtprt(1, "[yel]Failed to write in \"%s\"", path);
+		return;
+	}
+
+	unsigned char bytes[2];
+
+	for (int i = 0; i < len; i++) {
+		bytes[0] = (buff[i] >> 8) & 0xFF; // MSB
+		bytes[1] = buff[i] & 0xFF; // LSB
+		fwrite(bytes, 1, sizeof(bytes), fp);
+	}
+
+	fclose(fp);
+}
+

@@ -98,7 +98,7 @@ void update_gfalg(GFLAGS *gf, int argc, char *argv[]){
 
 	gf->verbose = 0;
 	gf->filename = malloc(MALL * sizeof(char));
-	strcpy(gf->filename, "./out_bin");
+	strcpy(gf->filename, "./asm_out_bin.bin");
 
 	for(i = 0; i < argc; ++i){
 
