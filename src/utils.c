@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
 #include "strfy.h"
 
 
@@ -65,28 +66,29 @@ int int_base16(char *hex) {
 }
 
 
-/* decimal_to_binary: return binary version of given decimal */
-char *decimal_to_binary(int decimal) {
-	/* This function can be written using sprintf and '%b' */
-	char *binary = malloc(13 * sizeof(char));
+char *decimal_to_binary(int decimal_num) {
+	int len = 14;
+	char *binary_str = malloc(len + 1);
 
-	int index = 11;
+	// Fill with '0'
+	memset(binary_str, '0', len);
+	binary_str[len] = '\0';
 
-	binary[0] = '0';
-	binary[1] = 'b';
+	// Add '0b' prefix
+	binary_str[0] = '0';
+	binary_str[1] = 'b';
 
-	// put all of the '0' ( not '\0' )
-	for(int i = 2; i < 12; i++)
-		binary[i] = '0';
-
-	while (decimal > 0 && index >= 2) {
-		binary[index] = (decimal % 2) + '0';
-		decimal /= 2;
+	// Convert decimal to binary and fill from the end
+	int index = len - 1;
+	while (decimal_num > 0 && index > 1) {
+		binary_str[index] = (decimal_num % 2) + '0';
+		decimal_num /= 2;
 		index--;
 	}
-	binary[12] = '\0';
-	return binary;
+
+	return binary_str;
 }
+
 
 
 /* update_gfalg: updage General-Flags with given arguments from user */

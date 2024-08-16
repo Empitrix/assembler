@@ -83,7 +83,7 @@ int main(int argc, char *argv[]){
 
 
 		int bbb_size = 3;
-		int ffff_size = 5;
+		int fff_size = 5;
 
 		if(strcmp(opcode, "BSF") == 0){
 			char *reg = operands.lines[0];
@@ -99,13 +99,12 @@ int main(int argc, char *argv[]){
 				return 1;
 			}
 
-			if(regn > (1 << ffff_size) - 1){
+			if(regn > (1 << fff_size) - 1){
 				printf("Invalid register: '%d' at line {%d}:\n\t%s\n", regn, i + 1, ior.lines[i]);
 				return 1;
 			}
 
-			// instruction = 0x500 | (bit << 4) | regn;
-			instruction = 0b010100000000 | (bit << 4) | regn;
+			instruction = 0b010100000000 | (bit << 5) | regn;
 
 		} else if (strcmp(opcode, "BCF") == 0){
 			char *reg = operands.lines[0];
@@ -121,12 +120,12 @@ int main(int argc, char *argv[]){
 				return 1;
 			}
 
-			if(regn > (1 << ffff_size) - 1){
+			if(regn > (1 << fff_size) - 1){
 				printf("Invalid register: '%d' at line {%d}:\n\t%s\n", regn, i + 1, ior.lines[i]);
 				return 1;
 			}
 
-			instruction = 0b010000000000 | (bit << 4) | regn;
+			instruction = 0b010000000000 | (bit << 5) | regn;
 
 		} else if (strcmp(opcode, "GOTO") == 0){
 			char *label = operands.lines[0];
