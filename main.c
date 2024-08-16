@@ -45,6 +45,7 @@ int main(int argc, char *argv[]){
 
 	for(int i = 0; i < ior.len; ++i){
 
+		str_strip(lines[i]);
 		// delete comments
 		if(char_find(lines[i], ';') != -1)
 			str_slice(lines[i], 0, char_find(lines[i], ';'));

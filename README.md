@@ -1,5 +1,5 @@
-# Assembeler
-Assembeler for a non-standrad 8-bit CPU
+# Assembler
+assembler for a non-standrad 8-bit CPU
 
 ## Build
 for GNU make use:
@@ -12,14 +12,14 @@ If you are using [`mingw`](https://www.mingw-w64.org/) for windows you can use:
 make windows
 ```
 
-After that, there will be a `assembeler` file, or `assembeler.exe` in windows.
+After that, there will be a `assembler` file, or `assembler.exe` in windows.
 
 
 ## Usage
-After compiling run the `assembeler` followed by given assembly file!
+After compiling run the `assembler` followed by given assembly file!
 for example:
 ```bash
-./assembeler ./test/gpio.asm
+./assembler ./test/gpio.asm
 ```
 after that if everything goes well you have a `out_bin` file which is contains binary data of given assembly file.
 
