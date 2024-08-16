@@ -3,4 +3,5 @@
 *.exe
 /out_bin
 /assembeler
+/assembler
 out_bin
