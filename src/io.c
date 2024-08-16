@@ -38,21 +38,22 @@ LINES io_read_file(char *path){
 }
 
 
-/* io_write_file: write given 'LINES' to the file that specified in the 'path' */
-int io_write_file(char *path, LINES lines){
-	FILE *f;
-	int i;
-
-	if((f = fopen(path, "w+")) == NULL){
-		return prtprt(1, "[yel]Failed to write in \"%s\"", path);
-	}
-
-	for(i = 0; i < lines.len; ++i)
-		fprintf(f, "%s\n", lines.lines[i]);
-
-	fclose(f);
-	return 0;
-}
+// // THIS IS FOR TEXT
+// /* io_write_file: write given 'LINES' to the file that specified in the 'path' */
+// int io_write_file(char *path, LINES lines){
+// 	FILE *f;
+// 	int i;
+// 
+// 	if((f = fopen(path, "w+")) == NULL){
+// 		return prtprt(1, "[yel]Failed to write in \"%s\"", path);
+// 	}
+// 
+// 	for(i = 0; i < lines.len; ++i)
+// 		fprintf(f, "%s\n", lines.lines[i]);
+// 
+// 	fclose(f);
+// 	return 0;
+// }
 
 
 void io_write_file_bin(char *path, int buff[], int len) {
