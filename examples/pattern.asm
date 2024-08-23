@@ -18,3 +18,23 @@ start:
     BCF GPIO, 6  ; Set bit 6 to 0
     BCF GPIO, 7  ; Set bit 7 to 0
     GOTO start   ; Back to stasrt (jump)
+
+; Output:
+; *
+; **
+; ***
+; ****
+; *****
+; ******
+; *******
+; ********
+; delay
+; ********
+; *******
+; ******
+; *****
+; ****
+; ***
+; **
+; *
+
