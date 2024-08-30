@@ -168,6 +168,7 @@ int arr_len(char **array) {
 
 /* str_break: breakdown given 'src' into words (split by white spaces)*/
 LINES str_break(char *src){
+	str_strip(src);
 	LINES words;
 	words.lines = malloc(MALL * sizeof(char *));
 	int idx = 0;
