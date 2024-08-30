@@ -156,6 +156,16 @@ void select_char_split(char *target, int idx, char *src, char split){
 }
 
 
+/* arr_len: returns the given 'char **' length */
+int arr_len(char **array) {
+	int length = 0;
+	while (array[length] != NULL) {
+		length++;
+	}
+	return length;
+}
+
+
 /* str_break: breakdown given 'src' into words (split by white spaces)*/
 LINES str_break(char *src){
 	LINES words;
@@ -177,8 +187,7 @@ LINES str_break(char *src){
 		}
 	}
 
-	// TODO: there is an error for +1 taht I don't get it
-	words.len = idx;
+	words.len = arr_len(words.lines);
 	return words;
 }
 
