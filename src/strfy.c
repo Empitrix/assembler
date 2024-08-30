@@ -42,14 +42,6 @@ void str_strip(char *str){
 }
 
 
-/* str_ltrim: trim all of the whitespaces at the left most of the given 'src' */
-void str_ltrim(char *str){
-	int i = 0;
-	int l = (int)strlen(str);
-	i = e_idx(str, l);
-	shift_over(str, i, l);
-}
-
 
 /* char_find: return a first index to the given 'l'etter otherwise return -1 */
 int char_find(char *src, char l){
@@ -219,4 +211,33 @@ LINES get_str_slice(LINES src, int start){
 		l.len = 0;
 	return l;
 }
+
+
+
+/* hex char to int */
+int hcti(char c) {
+	if (isdigit(c)) {
+		return c - '0';
+	} else if (isupper(c)) {
+		return c - 'A' + 10;
+	} else if (islower(c)) {
+		return c - 'a' + 10;
+	} else {
+		return -1; // Invalid character
+	}
+}
+
+
+/* hex str to int | exmaple: 03H => \x03 */
+int hsti(const char *hexString) {
+	int result = 0;
+	int length = strlen(hexString);
+
+	for (int i = 0; i < length - 1; i++) {
+		int digit = hcti(hexString[i]);
+		result = (result << 4) | digit;
+	}
+	return result;
+}
+
 

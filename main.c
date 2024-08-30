@@ -5,6 +5,9 @@
 #include "src/structs.h"
 
 
+#define SET_BY_MASK(inst, mask, val) ((inst & ~mask) | (val & mask))
+
+
 int main(int argc, char *argv[]){
 	GFLAGS gf;  // General Flags
 
@@ -111,9 +114,8 @@ int main(int argc, char *argv[]){
 			int regn = 0;
 			int bit = atoi(operands.lines[1]);
 
-			if((regn = get_label_key_value(equ_constants, equi, reg)) < 0){
+			if((regn = get_label_key_value(equ_constants, equi, reg)) < 0)
 				regn = 0;
-			}
 
 			if (bit > (1 << bbb_size) - 1){
 				printf("Invalid bit: '%d' at line {%d}:\n\t%s\n", bit, i + 1, ior.lines[i]);
@@ -126,6 +128,22 @@ int main(int argc, char *argv[]){
 			}
 
 			instruction = 0b010000000000 | (bit << 5) | regn;
+
+		} else if (strcmp(opcode, "MOVLW") == 0){
+			instruction = 0b110000000000 | hsti(operands.lines[0]);
+
+		} else if (strcmp(opcode, "MOVWF") == 0){
+			instruction = SET_BY_MASK(0b000000100000, 0b000000011111, hsti(operands.lines[0]));
+
+		} else if (strcmp(opcode, "CLRF") == 0){
+			instruction = SET_BY_MASK(0b000001100000, 0b000000011111, hsti(operands.lines[0]));
+
+		} else if (strcmp(opcode, "CLRW") == 0){
+			instruction = 0b000001000000;
+
+
+		} else if (strcmp(opcode, "SLEEP") == 0){
+			instruction = 0b000000000011;
 
 		} else if (strcmp(opcode, "GOTO") == 0){
 			char *label = operands.lines[0];
@@ -150,10 +168,8 @@ int main(int argc, char *argv[]){
 			machine_code[midx++] = instruction;
 
 
-		if(gf.verbose){
-			str_ltrim(lines[i]);
-			printf("%s %s\n", lines[i], decimal_to_binary(instruction));
-		}
+		if(gf.verbose)
+			printf("%-15s %s\n", lines[i], decimal_to_binary(instruction));
 	}
 
 	// Wirte machine_code into the given file
