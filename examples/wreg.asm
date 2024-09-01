@@ -1,7 +1,20 @@
-GPIO EQU 0x06  ; Define a constant for the GPIO register address
 start:
-	MOVLW 03H    ; Loads a literal (immediate) value into the W register.
-	MOVWF 06H    ; Moves the contents of the W register to a specified register or memory location.
-	CLRF 06H     ; Clears (sets to 0) a specified register or memory location.
-	CLRW         ; Clears the W register.
-	SLEEP        ; Puts the CPU into a standby mode.
+	MOVLW 80H  ; Write to register W
+	MOVWF 06H  ; Set the value of register W to 0x06 register
+	MOVLW C0H
+	MOVWF 06H
+	MOVLW E0H
+	MOVWF 06H
+	MOVLW F0H
+	MOVWF 06H
+	MOVLW F8H
+	MOVWF 06H
+	MOVLW FCH
+	MOVWF 06H
+	MOVLW FEH
+	MOVWF 06H
+	MOVLW FFH
+	MOVWF 06H
+	CLRF 06H   ; Clear register 0x06
+	CLRW       ; Clear register W
+  SLEEP      ; Sleep
