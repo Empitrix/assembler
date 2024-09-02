@@ -159,29 +159,29 @@ int arr_len(char **array) {
 
 
 /* str_break: breakdown given 'src' into words (split by white spaces)*/
-LINES str_break(char *src){
-	str_strip(src);
-	LINES words;
-	words.lines = malloc(MALL * sizeof(char *));
-	int idx = 0;
-	words.lines[idx] = malloc(MALL * sizeof(char *));
-
-	int l, j; l = (int)strlen(src);
-	j = 0;
-
-	for(int i = 0; i < l; ++i){
-		if(isspace(src[i]) == 0){
-			words.lines[idx][j++] = src[i];
+LINES str_break(char *input) {
+	int q = 0;
+	int bi = 0;
+	int f = 0;
+	char **buff = malloc(MALL * sizeof(char));
+	buff[bi] = malloc(MALL * sizeof(char));
+	int was_space = 0;
+	while(*input){
+		if(*input != ' ' || q == 1){
+			buff[bi][f++] = *input;
+			buff[bi][f + 1] = '\0';
+			was_space = 0;
 		} else {
-			if((int)strlen(words.lines[idx]) != 0){
-				words.lines[++idx] = malloc(MALL * sizeof(char *));
-				j = 0;
+			if(was_space == 0){
+				buff[++bi] = malloc(MALL * sizeof(char));
+				f = 0;
+				was_space = 1;
 			}
 		}
+		if(*input == '\'') q = q ? 0 : 1;
+		input++;
 	}
-
-	words.len = arr_len(words.lines);
-	return words;
+	return (LINES){buff, arr_len(buff)};
 }
 
 /* line_contain: check that the given 'sub' is in the 'main' */
@@ -240,4 +240,37 @@ int hsti(const char *hexString) {
 	return result;
 }
 
+
+
+int detect_8bit_binary(char *input) {
+	int i;
+
+	// Check if the input starts with "0b"
+	if (strncmp(input, "0b", 2) != 0)
+		return 0;
+
+	// Check if the remaining part is 8 bits
+	if (strlen(input) - 2 != 8)
+		return 0;
+
+	// Check if all characters are either '0' or '1'
+	for (i = 2; i < strlen(input); i++)
+		if (input[i] != '0' && input[i] != '1')
+			return 0;
+
+	return 1; // Valid 8-bit binary pattern
+}
+
+
+int btoi(const char *input) {
+	int result = 0;
+	int power = 0;
+	input += 2;
+	for (int i = strlen(input) - 1; i >= 0; i--) {
+		if (input[i] == '1')
+			result |= (1 << power); // Use bitwise OR to accumulate the value
+		power++;
+	}
+	return result;
+}
 

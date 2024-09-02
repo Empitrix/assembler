@@ -48,13 +48,22 @@ int main(int argc, char *argv[]){
 
 	for(int i = 0; i < ior.len; ++i){
 
-		str_strip(lines[i]);
 		// delete comments
 		if(char_find(lines[i], ';') != -1)
 			str_slice(lines[i], 0, char_find(lines[i], ';'));
 
+		str_strip(lines[i]);
+		if(strcmp(lines[i], "") == 0)
+			continue;
+
 		// replace commas with spaces
-		char_replace(lines[i], ',', ' ');
+		int q = 0;
+		for(int x = 0; x < (int)strlen(lines[i]); x++){
+			if(lines[i][x] == '\'') q = q ? 0 : 1;
+			if(lines[i][x] == ',' && q == 0)
+				lines[i][x] = ' ';
+		}
+		// char_replace(lines[i], ',', ' ');
 
 		// lable found
 		if(char_find(lines[i], ':') != -1){
@@ -130,13 +139,23 @@ int main(int argc, char *argv[]){
 			instruction = 0b010000000000 | (bit << 5) | regn;
 
 		} else if (strcmp(opcode, "MOVLW") == 0){
-			instruction = 0b110000000000 | hsti(operands.lines[0]);
+		 	instruction = 0b110000000000 | e_literal(operands.lines[0], ior.lines[i], i);
 
 		} else if (strcmp(opcode, "MOVWF") == 0){
-			instruction = SET_BY_MASK(0b000000100000, 0b000000011111, hsti(operands.lines[0]));
+			char *reg = operands.lines[0];
+			int regn;
+			if((regn = get_label_key_value(equ_constants, equi, reg)) < 0)
+				instruction = SET_BY_MASK(0b000000100000, 0b000000011111, hsti(operands.lines[0]));
+			else
+				instruction = SET_BY_MASK(0b000000100000, 0b000000011111, regn);
 
 		} else if (strcmp(opcode, "CLRF") == 0){
-			instruction = SET_BY_MASK(0b000001100000, 0b000000011111, hsti(operands.lines[0]));
+			char *reg = operands.lines[0];
+			int regn;
+			if((regn = get_label_key_value(equ_constants, equi, reg)) < 0)
+				instruction = SET_BY_MASK(0b000001100000, 0b000000011111, hsti(operands.lines[0]));
+			else
+				instruction = SET_BY_MASK(0b000001100000, 0b000000011111, regn);
 
 		} else if (strcmp(opcode, "CLRW") == 0){
 			instruction = 0b000001000000;

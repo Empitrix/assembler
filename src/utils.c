@@ -135,3 +135,63 @@ void update_gfalg(GFLAGS *gf, int argc, char *argv[]){
 	}
 }
 
+
+
+char quoted_letter(char *str) {
+	char result = '\0';
+	char temp;
+
+
+	if(sscanf(str, "'%c'", &temp) == 1 && (int)strlen(str) == 3)
+		result = temp;
+
+	if(sscanf(str, "'\\%c'", &temp) == 1 && (int)strlen(str) == 4){
+
+		switch (temp) {
+			case 'n':
+				result = '\n';
+				break;
+
+			case '\\':
+				result = '\\';
+				break;
+
+			default:
+				result = '\0';
+				break;
+		}
+	}
+	
+	// printf("Awesome (%c)\n", result);
+
+	return result;
+}
+
+
+int e_literal(char *inpt, char *line, int idx){
+	// as char
+	char ch = 0;
+	if((ch = quoted_letter(inpt)) != '\0'){
+		return (int)ch;
+	}
+
+	// as hex
+	int len = (int)strlen(inpt);
+	if(inpt[len - 1] == 'H')
+		return hsti(inpt);
+
+	// as int
+	char *endptr;
+	int num;
+	num = strtol(inpt, &endptr, 10);
+	if(strcmp(endptr, "") == 0)
+		return (int)num;
+
+	// as binary
+	if(detect_8bit_binary(inpt))
+		return btoi(inpt);
+
+	printf("Failed to extract {%s} At line (%d):\n >%s\n", inpt, idx + 1, line);
+	exit(0);
+}
+

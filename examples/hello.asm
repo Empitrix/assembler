@@ -1,132 +1,63 @@
-GPIO EQU 0x06     ; Define a constant for the GPIO register address
+; Print "Hello, World" in console
+
+GPIO EQU 0x06   ; Define a ;Constant for the GPIO register address
+
 start:
-    ; H
-    BSF GPIO, 3
-    BSF GPIO, 6
+	MOVLW 'H'    ; Load the given letter to register W as it's value
+	MOVWF GPIO   ; Move the value of register W to GPIO
+	BSF GPIO, 7  ; Set bit 7 of GPIO to 1
 
-    BSF GPIO, 7
-    CLRF 06H
+	MOVLW 'e'
+	MOVWF GPIO
+	BSF GPIO, 7
 
-    ; e
-    BSF GPIO, 0
-    BSF GPIO, 2
-    BSF GPIO, 5
-    BSF GPIO, 6
+	MOVLW 'l'
+	MOVWF GPIO
+	BSF GPIO, 7
 
-    BSF GPIO, 7
-    CLRF 06H
+	MOVLW 'l'
+	MOVWF GPIO
+	BSF GPIO, 7
 
-    ; l
-    BSF GPIO, 2
-    BSF GPIO, 3
-    BSF GPIO, 5
-    BSF GPIO, 6
+	MOVLW 'o'
+	MOVWF GPIO
+	BSF GPIO, 7
 
-    BSF GPIO, 7
-    CLRF 06H
+	MOVLW ','
+	MOVWF GPIO
+	BSF GPIO, 7
 
-    ; l
-    BSF GPIO, 2
-    BSF GPIO, 3
-    BSF GPIO, 5
-    BSF GPIO, 6
+	MOVLW ' '
+	MOVWF GPIO
+	BSF GPIO, 7
 
-    BSF GPIO, 7
-    CLRF 06H
+	MOVLW 'W'
+	MOVWF GPIO
+	BSF GPIO, 7
 
+	MOVLW 'o'
+	MOVWF GPIO
+	BSF GPIO, 7
 
-    ; o
-    BSF GPIO, 0
-    BSF GPIO, 1
-    BSF GPIO, 2
-    BSF GPIO, 3
-    BSF GPIO, 5
-    BSF GPIO, 6
+	MOVLW 'r'
+	MOVWF GPIO
+	BSF GPIO, 7
 
-    BSF GPIO, 7
-    CLRF 06H
+	MOVLW 'l'
+	MOVWF GPIO
+	BSF GPIO, 7
 
+	MOVLW 'd'
+	MOVWF GPIO
+	BSF GPIO, 7
 
-    ; >,<
-    BSF GPIO, 2
-    BSF GPIO, 3
-    BSF GPIO, 5
+	MOVLW '!'
+	MOVWF GPIO
+	BSF GPIO, 7
 
-    BSF GPIO, 7
-    CLRF 06H
+	MOVLW '\n'
+	MOVWF GPIO
+	BSF GPIO, 7
 
-    ; > <
-    BSF GPIO, 5
+	SLEEP
 
-    BSF GPIO, 7
-    CLRF 06H
-
-
-
-    ; W
-    BSF GPIO, 0
-    BSF GPIO, 1
-    BSF GPIO, 2
-    BSF GPIO, 4
-    BSF GPIO, 6
-
-    BSF GPIO, 7
-    CLRF 06H
-
-
-    ; o
-    BSF GPIO, 0
-    BSF GPIO, 1
-    BSF GPIO, 2
-    BSF GPIO, 3
-    BSF GPIO, 5
-    BSF GPIO, 6
-
-    BSF GPIO, 7
-    CLRF 06H
-
-    ; r
-    BSF GPIO, 1
-    BSF GPIO, 4
-    BSF GPIO, 5
-    BSF GPIO, 6
-
-    BSF GPIO, 7
-    CLRF 06H
-
-
-    ; l
-    BSF GPIO, 2
-    BSF GPIO, 3
-    BSF GPIO, 5
-    BSF GPIO, 6
-
-    BSF GPIO, 7
-    CLRF 06H
-
-
-    ; l
-    BSF GPIO, 2
-    BSF GPIO, 5
-    BSF GPIO, 6
-
-    BSF GPIO, 7
-    CLRF 06H
-
-    ; >!<
-    BSF GPIO, 0
-    BSF GPIO, 5
-
-    BSF GPIO, 7
-    CLRF 06H
-
-    ; >\n<
-    BSF GPIO, 1
-    BSF GPIO, 3
-
-    BSF GPIO, 7
-    CLRF 06H
-
-    NOP           ; Do nothing (introduce a small delay)
-    BCF GPIO, 0   ; Clear bit 0 of the GPIO register (turn off the LED)
-    GOTO start    ; Jump back to the beginning (infinite loop)
