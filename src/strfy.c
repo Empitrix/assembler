@@ -9,8 +9,9 @@
 /* reverse: reverse the given array */
 void reverse(char s[]) {
 	int c, i, j;
-	for (i = 0, j = strlen(s) - 1; i < j; i++, j--)
+	for (i = 0, j = strlen(s) - 1; i < j; i++, j--){
 		c = s[i], s[i] = s[j], s[j] = c;
+	}
 }
 
 
@@ -24,8 +25,9 @@ int e_idx(char *src, int l){
 
 /* shift_over: put everything after the given 'shift' at the beggining of the array */
 void shift_over(char *src, int shift, int size){
-	for(int j = 0; j < size; ++j)
+	for(int j = 0; j < size; ++j){
 		src[j] = src[shift + j];
+	}
 }
 
 
@@ -46,9 +48,11 @@ void str_strip(char *str){
 /* char_find: return a first index to the given 'l'etter otherwise return -1 */
 int char_find(char *src, char l){
 	int i;
-	for(int i = 0; i < (int)strlen(src); i++)
-		if(src[i] == l)
+	for(int i = 0; i < (int)strlen(src); i++){
+		if(src[i] == l){
 			return i;
+		}
+	}
 	return -1;
 }
 
@@ -56,26 +60,31 @@ int char_find(char *src, char l){
 /* char_findr (r:range): return a first index more than s to the given 'l'etter otherwise return -1 */
 int char_findr(char *src, char l, int s){
 	int i;
-	for(int i = 0; i < (int)strlen(src); i++)
-		if(src[i] == l && i >= s)
+	for(int i = 0; i < (int)strlen(src); i++){
+		if(src[i] == l && i >= s){
 			return i;
+		}
+	}
 	return -1;
 }
 
 /* get slice: return the string between the given range */
 char *str_slice(char *src, int start, int end){
 	shift_over(src, start, (int)strlen(src));
-	for(int i = end; i < (int)strlen(src); ++i)
+	for(int i = end; i < (int)strlen(src); ++i){
 		src[i] = '\0';
+	}
 	return src;
 }
 
 
 /* char_replace: replaces all of the 's' in 'src' with 't' */
 void char_replace(char* src, char s, char t){
-	for(int i = 0; i < (int)strlen(src); ++i)
-		if(src[i] == s)
+	for(int i = 0; i < (int)strlen(src); ++i){
+		if(src[i] == s){
 			src[i] = t;
+		}
+	}
 }
 
 
@@ -188,9 +197,11 @@ LINES str_break(char *input) {
 int line_contain(char *main, char *sub){
 	LINES bl;
 	bl = str_break(main);
-	for(int i = 0; i < bl.len; ++i)
-		if(strcmp(bl.lines[i], sub) == 0)
+	for(int i = 0; i < bl.len; ++i){
+		if(strcmp(bl.lines[i], sub) == 0){
 			return 1;
+		}
+	}
 	return 0;
 }
 
@@ -207,11 +218,11 @@ LINES get_str_slice(LINES src, int start){
 		j++;
 	}
 	l.len = src.len - start;
-	if(l.len < 0)
+	if(l.len < 0){
 		l.len = 0;
+	}
 	return l;
 }
-
 
 
 /* hex char to int */
@@ -246,17 +257,21 @@ int detect_8bit_binary(char *input) {
 	int i;
 
 	// Check if the input starts with "0b"
-	if (strncmp(input, "0b", 2) != 0)
+	if (strncmp(input, "0b", 2) != 0){
 		return 0;
+	}
 
 	// Check if the remaining part is 8 bits
-	if (strlen(input) - 2 != 8)
+	if (strlen(input) - 2 != 8){
 		return 0;
+	}
 
 	// Check if all characters are either '0' or '1'
-	for (i = 2; i < strlen(input); i++)
-		if (input[i] != '0' && input[i] != '1')
+	for (i = 2; i < strlen(input); i++){
+		if (input[i] != '0' && input[i] != '1'){
 			return 0;
+		}
+	}
 
 	return 1; // Valid 8-bit binary pattern
 }
@@ -267,8 +282,9 @@ int btoi(const char *input) {
 	int power = 0;
 	input += 2;
 	for (int i = strlen(input) - 1; i >= 0; i--) {
-		if (input[i] == '1')
+		if (input[i] == '1'){
 			result |= (1 << power); // Use bitwise OR to accumulate the value
+		}
 		power++;
 	}
 	return result;

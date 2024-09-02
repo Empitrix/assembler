@@ -90,7 +90,6 @@ char *decimal_to_binary(int decimal_num) {
 }
 
 
-
 /* update_gfalg: updage General-Flags with given arguments from user */
 void update_gfalg(GFLAGS *gf, int argc, char *argv[]){
 	int i;
@@ -112,9 +111,6 @@ void update_gfalg(GFLAGS *gf, int argc, char *argv[]){
 			saving = 1;
 		}
 
-		// if(strcmp(argv[i], "--help") == 0)
-		// 	show_help_info();
-
 		if((saving == 1) && (i == argc - 1)){
 			prtprt(0, "[yel]No output file!\n[nrm]after '-o' needs to be a file name! {%d}", saving);
 			exit(0);
@@ -131,7 +127,6 @@ void update_gfalg(GFLAGS *gf, int argc, char *argv[]){
 				}
 			}
 		}
-
 	}
 }
 
@@ -141,15 +136,16 @@ char quoted_letter(char *str) {
 	char result = '\0';
 	char temp;
 
-
-	if(sscanf(str, "'%c'", &temp) == 1 && (int)strlen(str) == 3)
+	if(sscanf(str, "'%c'", &temp) == 1 && (int)strlen(str) == 3){
 		result = temp;
-
-	if(sscanf(str, "'\\%c'", &temp) == 1 && (int)strlen(str) == 4){
-
+	} else if(sscanf(str, "'\\%c'", &temp) == 1 && (int)strlen(str) == 4){
 		switch (temp) {
 			case 'n':
 				result = '\n';
+				break;
+
+			case 't':
+				result = '\t';
 				break;
 
 			case '\\':
@@ -161,14 +157,14 @@ char quoted_letter(char *str) {
 				break;
 		}
 	}
-	
-	// printf("Awesome (%c)\n", result);
 
 	return result;
 }
 
 
+/* e_literal: extract a literal value */
 int e_literal(char *inpt, char *line, int idx){
+
 	// as char
 	char ch = 0;
 	if((ch = quoted_letter(inpt)) != '\0'){
@@ -177,19 +173,22 @@ int e_literal(char *inpt, char *line, int idx){
 
 	// as hex
 	int len = (int)strlen(inpt);
-	if(inpt[len - 1] == 'H')
+	if(inpt[len - 1] == 'H'){
 		return hsti(inpt);
+	}
 
 	// as int
 	char *endptr;
 	int num;
 	num = strtol(inpt, &endptr, 10);
-	if(strcmp(endptr, "") == 0)
-		return (int)num;
+	if(strcmp(endptr, "") == 0 && (num >= 0 && num <= 255)){
+		return num;
+	}
 
 	// as binary
-	if(detect_8bit_binary(inpt))
+	if(detect_8bit_binary(inpt)){
 		return btoi(inpt);
+	}
 
 	printf("Failed to extract {%s} At line (%d):\n >%s\n", inpt, idx + 1, line);
 	exit(0);

@@ -25,8 +25,9 @@ int main(int argc, char *argv[]){
 
 	// Read the file if possible
 	LINES ior = io_read_file(argv[1]);
-	if(ior.len == -1)
+	if(ior.len == -1){
 		return prtprt(1, "[red]File [yel]\"%s\"[red] does not exists", argv[1]);
+	}
 
 
 	update_gfalg(&gf, argc, argv);   // update flags
@@ -47,7 +48,6 @@ int main(int argc, char *argv[]){
 
 
 	for(int i = 0; i < ior.len; ++i){
-
 		// delete comments
 		if(char_find(lines[i], ';') != -1)
 			str_slice(lines[i], 0, char_find(lines[i], ';'));
@@ -123,8 +123,9 @@ int main(int argc, char *argv[]){
 			int regn = 0;
 			int bit = atoi(operands.lines[1]);
 
-			if((regn = get_label_key_value(equ_constants, equi, reg)) < 0)
+			if((regn = get_label_key_value(equ_constants, equi, reg)) < 0){
 				regn = 0;
+			}
 
 			if (bit > (1 << bbb_size) - 1){
 				printf("Invalid bit: '%d' at line {%d}:\n\t%s\n", bit, i + 1, ior.lines[i]);
@@ -183,12 +184,14 @@ int main(int argc, char *argv[]){
 				continue;
 
 
-		if(instruction >= 0)
+		if(instruction >= 0){
 			machine_code[midx++] = instruction;
+		}
 
 
-		if(gf.verbose)
+		if(gf.verbose){
 			printf("%-15s %s\n", lines[i], decimal_to_binary(instruction));
+		}
 	}
 
 	// Wirte machine_code into the given file

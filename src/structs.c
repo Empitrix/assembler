@@ -18,8 +18,9 @@ typedef struct LINES {
 int get_label_key_value(LABEL labels[], int len, char *l){
 	int i = 0;
 	for(i = 0; i < len; ++i){
-		if(strcmp(labels[i].key, l) == 0)
+		if(strcmp(labels[i].key, l) == 0){
 			return labels[i].value;
+		}
 	}
 	return -1;
 }
