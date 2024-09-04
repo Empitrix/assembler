@@ -236,6 +236,26 @@ int main(int argc, char *argv[]){
 			}
 
 
+		} else if (strcmp(opcode, "BTFSS") == 0){
+			char *reg = operands.lines[0];
+			int regn;
+			int bit = atoi(operands.lines[1]);
+			if((regn = get_label_key_value(equ_constants, equi, reg)) < 0){
+				instruction = 0b011000000000 | (bit << 5) | hsti(operands.lines[0]);
+			} else{
+				instruction = 0b011000000000 | (bit << 5) | regn;
+			}
+
+		} else if (strcmp(opcode, "BTFSC") == 0){
+			char *reg = operands.lines[0];
+			int regn;
+			int bit = atoi(operands.lines[1]);
+			if((regn = get_label_key_value(equ_constants, equi, reg)) < 0){
+				instruction = 0b011100000000 | (bit << 5) | hsti(operands.lines[0]);
+			} else{
+				instruction = 0b011100000000 | (bit << 5) | regn;
+			}
+
 
 		} else if (strcmp(opcode, "GOTO") == 0){
 			char *label = operands.lines[0];
