@@ -163,7 +163,7 @@ char quoted_letter(char *str) {
 
 
 /* e_literal: extract a literal value */
-int e_literal(char *inpt, char *line, int idx){
+int e_literal(char *inpt, char *line, int idx, int out){
 
 	// as char
 	char ch = 0;
@@ -185,12 +185,74 @@ int e_literal(char *inpt, char *line, int idx){
 		return num;
 	}
 
+
+	// as hex (start with 0X)
+	num = strtol(inpt, &endptr, 16);
+	if(strcmp(endptr, "") == 0 && (num >= 0 && num <= 255)){
+		return num;
+	}
+
 	// as binary
 	if(detect_8bit_binary(inpt)){
 		return btoi(inpt);
 	}
 
-	printf("Failed to extract {%s} At line (%d):\n >%s\n", inpt, idx + 1, line);
-	exit(0);
+	if(out){
+		printf("Failed to extract {%s} At line (%d):\n >%s\n", inpt, idx + 1, line);
+		exit(0);
+	}
+	return -1;
 }
 
+
+/* check that if key exists */
+int any_exists(LABEL arr[], int siz, char *name){
+	for(int i = 0; i < siz; ++i){
+		if(strcmp(arr[i].key, name) == 0){
+			return 1;
+		}
+	}
+	return 0;
+}
+
+
+/* check that if number exists */
+int any_num_exists(int arr[], int siz, int num){
+	for(int i = 0; i < siz; ++i){
+		if(arr[i] == num){
+			return 1;
+		}
+	}
+	return 0;
+}
+
+/* return a number of unique numbers in arr */
+int get_total(int arr[], int siz){
+	int total = 0;
+	int save[MALL];
+	int si = 0;
+	for(int i = 0; i < siz; ++i){
+		if(any_num_exists(save, si, arr[i]) == 0){
+			total++;
+			save[si++] = arr[i];
+		}
+	}
+	return total;
+}
+
+/* return number of total memory used */
+int used_mem(LABEL *equ, int equi, char **arr, int siz){
+	int size = 0;
+	int nums[MALL] = {};
+	int save = 0;
+	for(int i = 0; i < siz; ++i){
+		if(any_exists(equ, equi, arr[i])){
+			nums[size++] = get_label_key_value(equ, equi, arr[i]);
+		} else {
+			if((save = e_literal(arr[i], "", 0, 0)) != -1){
+				nums[size++] = save;
+			}
+		}
+	}
+	return get_total(nums, size);
+}

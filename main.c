@@ -47,6 +47,10 @@ int main(int argc, char *argv[]){
 	int machine_code[MALL];
 
 
+	int mem_idx = 0;
+	char *mem_addr[MALL];
+
+
 	for(int i = 0; i < ior.len; ++i){
 		// delete comments
 		if(char_find(lines[i], ';') != -1)
@@ -63,7 +67,6 @@ int main(int argc, char *argv[]){
 			if(lines[i][x] == ',' && q == 0)
 				lines[i][x] = ' ';
 		}
-		// char_replace(lines[i], ',', ' ');
 
 		// lable found
 		if(char_find(lines[i], ':') != -1){
@@ -118,6 +121,8 @@ int main(int argc, char *argv[]){
 
 			instruction = 0b010100000000 | (bit << 5) | regn;
 
+			mem_addr[mem_idx++] = reg;
+
 		} else if (strcmp(opcode, "BCF") == 0){
 			char *reg = operands.lines[0];
 			int regn = 0;
@@ -138,17 +143,20 @@ int main(int argc, char *argv[]){
 			}
 
 			instruction = 0b010000000000 | (bit << 5) | regn;
+			mem_addr[mem_idx++] = reg;
 
 		} else if (strcmp(opcode, "MOVLW") == 0){
-		 	instruction = 0b110000000000 | e_literal(operands.lines[0], ior.lines[i], i);
+		 	instruction = 0b110000000000 | e_literal(operands.lines[0], ior.lines[i], i, 1);
 
 		} else if (strcmp(opcode, "MOVWF") == 0){
 			char *reg = operands.lines[0];
 			int regn;
 			if((regn = get_label_key_value(equ_constants, equi, reg)) < 0){
 				instruction = SET_BY_MASK(0b000000100000, 0b000000011111, hsti(operands.lines[0]));
+				mem_addr[mem_idx++] = operands.lines[0];
 			} else {
 				instruction = SET_BY_MASK(0b000000100000, 0b000000011111, regn);
+				mem_addr[mem_idx++] = reg;
 			}
 
 		} else if (strcmp(opcode, "CLRF") == 0){
@@ -156,8 +164,10 @@ int main(int argc, char *argv[]){
 			int regn;
 			if((regn = get_label_key_value(equ_constants, equi, reg)) < 0){
 				instruction = SET_BY_MASK(0b000001100000, 0b000000011111, hsti(operands.lines[0]));
+				mem_addr[mem_idx++] = operands.lines[0];
 			} else{
 				instruction = SET_BY_MASK(0b000001100000, 0b000000011111, regn);
+				mem_addr[mem_idx++] = reg;
 			}
 
 		} else if (strcmp(opcode, "CLRW") == 0){
@@ -179,8 +189,10 @@ int main(int argc, char *argv[]){
 
 			if((regn = get_label_key_value(equ_constants, equi, reg)) < 0){
 				instruction = 0b000011000000 | (bit << 5) | hsti(operands.lines[0]);
+				mem_addr[mem_idx++] = operands.lines[0];
 			} else{
 				instruction = 0b000011000000 | (bit << 5) | regn;
+				mem_addr[mem_idx++] = reg;
 			}
 
 
@@ -196,8 +208,10 @@ int main(int argc, char *argv[]){
 
 			if((regn = get_label_key_value(equ_constants, equi, reg)) < 0){
 				instruction = 0b001011000000 | (bit << 5) | hsti(operands.lines[0]);
+				mem_addr[mem_idx++] = operands.lines[0];
 			} else{
 				instruction = 0b001011000000 | (bit << 5) | regn;
+				mem_addr[mem_idx++] = reg;
 			}
 
 
@@ -214,8 +228,10 @@ int main(int argc, char *argv[]){
 
 			if((regn = get_label_key_value(equ_constants, equi, reg)) < 0){
 				instruction = 0b001010000000 | (bit << 5) | hsti(operands.lines[0]);
+				mem_addr[mem_idx++] = operands.lines[0];
 			} else{
 				instruction = 0b001010000000 | (bit << 5) | regn;
+				mem_addr[mem_idx++] = reg;
 			}
 
 
@@ -231,8 +247,10 @@ int main(int argc, char *argv[]){
 
 			if((regn = get_label_key_value(equ_constants, equi, reg)) < 0){
 				instruction = 0b001111000000 | (bit << 5) | hsti(operands.lines[0]);
+				mem_addr[mem_idx++] = operands.lines[0];
 			} else{
 				instruction = 0b001111000000 | (bit << 5) | regn;
+				mem_addr[mem_idx++] = reg;
 			}
 
 
@@ -242,8 +260,10 @@ int main(int argc, char *argv[]){
 			int bit = atoi(operands.lines[1]);
 			if((regn = get_label_key_value(equ_constants, equi, reg)) < 0){
 				instruction = 0b011000000000 | (bit << 5) | hsti(operands.lines[0]);
+				mem_addr[mem_idx++] = operands.lines[0];
 			} else{
 				instruction = 0b011000000000 | (bit << 5) | regn;
+				mem_addr[mem_idx++] = reg;
 			}
 
 		} else if (strcmp(opcode, "BTFSC") == 0){
@@ -252,8 +272,10 @@ int main(int argc, char *argv[]){
 			int bit = atoi(operands.lines[1]);
 			if((regn = get_label_key_value(equ_constants, equi, reg)) < 0){
 				instruction = 0b011100000000 | (bit << 5) | hsti(operands.lines[0]);
+				mem_addr[mem_idx++] = operands.lines[0];
 			} else{
 				instruction = 0b011100000000 | (bit << 5) | regn;
+				mem_addr[mem_idx++] = reg;
 			}
 
 
@@ -289,6 +311,9 @@ int main(int argc, char *argv[]){
 
 	// Wirte machine_code into the given file
 	io_write_file_bin(gf.filename, machine_code, midx);
+
+	fprintf(stderr, "Written words: %d\n", midx * 2);
+	fprintf(stderr, "Total memory use: %d\n", used_mem(equ_constants, equi, mem_addr, mem_idx));
 
 	return 0;
 }
