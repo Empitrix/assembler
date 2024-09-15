@@ -256,3 +256,13 @@ int used_mem(LABEL *equ, int equi, char **arr, int siz){
 	}
 	return get_total(nums, size);
 }
+
+
+
+/* itoa: int to array */
+char *itoa(int i){
+	char *result = malloc(20);
+	sprintf(result, "%d", i);
+	return result;
+};
+
