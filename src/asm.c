@@ -307,6 +307,7 @@ ASM assemble(LINES ior){
 		}
 
 		asbl.lines[line_idx] = malloc(MALL);
+		asbl.mcode[line_idx] = instruction;
 		sprintf(asbl.lines[line_idx], "%-15s %s", lines[i], decimal_to_binary(instruction));
 		line_idx++;
 	}
