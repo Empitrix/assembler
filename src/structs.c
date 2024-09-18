@@ -41,10 +41,10 @@ typedef struct ASMERR {
 	char *obj;    // Object (can be "" or "bit" etc...)
 } ASMERR;
 
+
 typedef struct ASMLEN {
 	int mem;      // Memory usage size (0...(16 + 10))
-	int words;    // flash size (total * 2)
-	int capture;  // capture length (total)
+	int words;    // flash size (words)
 } ASMLEN;
 
 
@@ -55,4 +55,27 @@ typedef struct ASM {
 	ASMLEN len;       // counting and length
 	ASMERR err;       // Error
 } ASM;
+
+
+typedef enum status_t {
+	FAILED,
+	SUCCESS
+} status_t;
+
+
+typedef struct STATUS {
+	status_t type;
+	char *msg;
+	char *obj;
+	int value;
+} STATUS;
+
+
+typedef enum arr_t { TO_LABEL, TO_EQU } arr_t;
+
+
+typedef struct OP_HNDL {
+	char *lable;
+	int (*func)(LINES);
+} OP_HNDL;
 

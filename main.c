@@ -38,7 +38,7 @@ int main(int argc, char *argv[]){
 			}
 		}
 		printf("\nNumber of Words: %d\nNumber of used memory: %d\n", asmbl.len.words, asmbl.len.mem);
-		io_write_file_bin(gf.filename, asmbl.mcode, asmbl.len.capture);
+		io_write_file_bin(gf.filename, asmbl.mcode, asmbl.len.words);
 	} else {
 		char objbuff[100];
 		if(strcmp(asmbl.err.obj, "") != 0){

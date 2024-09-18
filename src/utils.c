@@ -6,6 +6,7 @@
 #include <string.h>
 #include "strfy.h"
 
+#pragma once
 
 /* cbuff: Clear Buffer */
 void cbuff(char *buff, int l){
@@ -265,4 +266,16 @@ char *itoa(int i){
 	sprintf(result, "%d", i);
 	return result;
 };
+
+
+
+int is_number(char *inpt){
+	char *endptr;
+	int num;
+	num = strtol(inpt, &endptr, 10);
+	if(strcmp(endptr, "") == 0 && (num >= 0 && num <= 255)){
+		return num;
+	}
+	return -1;
+}
 
