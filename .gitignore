@@ -5,4 +5,5 @@
 /asm_out_bin
 /assembeler
 /assembler
+/.clangd
 out_bin
