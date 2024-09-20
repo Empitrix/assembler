@@ -144,7 +144,7 @@ int check_bit_reg(int reg, int bit, char *regstr){
 	int fff_size = 4;
 
 	if (bit > (1 << bbb_size) - 1){
-		update_err("Invalid bit", itoa(bit));
+		update_err("Invalid bit", itoar(bit));
 		return 1;
 	}
 	if(reg > (1 << fff_size) - 1){
