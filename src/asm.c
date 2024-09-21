@@ -135,7 +135,9 @@ ASM assemble(LINES ior){
 
 				if(instruction >= 0){
 					if(line_contain(lines[i], "GOTO")){
-						replace_goto_address(lines[i]);
+						replace_address(lines[i], 1, TO_LABEL, 3);
+					} else {
+						replace_address(lines[i], 1, TO_EQU, 2);
 					}
 
 					// Valid OP

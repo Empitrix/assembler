@@ -59,8 +59,8 @@ STATUS save_label(char *name, int value, arr_t src){
 }
 
 
-/* get_lable: return a value of a lable '-1' if error occurred */
-int get_lable(char *name, arr_t src){
+/* get_label: return a value of a lable '-1' if error occurred */
+int get_label(char *name, arr_t src){
 	int limit = src == TO_LABEL ? _lidx : _equi;
 	for(int i = 0; i < limit; ++i){
 		if(src == TO_LABEL){
@@ -87,7 +87,7 @@ void update_err(char *msg, char *obj){
 
 int extract_value(char *inpt){
 	// Find the lable
-	int result = get_lable(inpt, TO_EQU);
+	int result = get_label(inpt, TO_EQU);
 	if(result >= 0){
 		return result;
 	}
@@ -243,18 +243,27 @@ int get_tst_op(LINES operands, int code){
 }
 
 
-void replace_goto_address(char *line){
+void replace_address(char *line, int idx, arr_t type, int h_siz){
 	LINES lines = str_break(line);
 
-	int lval;
-	lval = get_lable(lines.lines[1], TO_LABEL);
-
-	if(lval != -1){
-		char *buff = malloc(10);
-		strcpy(buff, dtoh(lval, 3));
-		strcpy(lines.lines[1], buff);
-		free(buff); buff = NULL;
+	if(idx > lines.len || lines.lines[idx] == NULL){
+		free_lines(&lines);
+		return;
 	}
+
+	int lval;
+	lval = get_label(lines.lines[idx], type);
+
+	if(lval == -1){
+		free_lines(&lines);
+		return;
+	}
+
+	char *buff = malloc(10);
+	strcpy(buff, dtoh(lval, h_siz));
+	strcpy(lines.lines[idx], buff);
+	free(buff); buff = NULL;
+
 
 	char *buffer = malloc(MALL);
 	int i;
@@ -274,7 +283,7 @@ void replace_goto_address(char *line){
 /* {GOTO} */
 int handle_goto(LINES operands){
 	char *label = operands.lines[0];
-	int lvalue = get_lable(label, TO_LABEL);
+	int lvalue = get_label(label, TO_LABEL);
 	if(lvalue >= 0){
 		return 0b101000000000 | lvalue;
 	}
