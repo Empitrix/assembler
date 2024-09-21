@@ -132,7 +132,12 @@ ASM assemble(LINES ior){
 
 				instruction = hndls[j].func(operands);
 
+
 				if(instruction >= 0){
+					if(line_contain(lines[i], "GOTO")){
+						replace_goto_address(lines[i]);
+					}
+
 					// Valid OP
 					asmbl.lines[line_idx] = malloc(MALL);
 					asmbl.mcode[midx++] = instruction;

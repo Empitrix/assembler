@@ -1,6 +1,7 @@
 #include "strfy.h"
 #include "structs.h"
 #include <stdio.h>
+#include <string.h>
 #include <strings.h>
 #include "utils.h"
 
@@ -239,6 +240,33 @@ int get_tst_op(LINES operands, int code){
 
 
 	return code | (bit << 5) | reg;
+}
+
+
+void replace_goto_address(char *line){
+	LINES lines = str_break(line);
+
+	int lval;
+	lval = get_lable(lines.lines[1], TO_LABEL);
+
+	if(lval != -1){
+		char *buff = malloc(10);
+		strcpy(buff, dtoh(lval, 3));
+		strcpy(lines.lines[1], buff);
+		free(buff); buff = NULL;
+	}
+
+	char *buffer = malloc(MALL);
+	int i;
+	for(i = 0; i < lines.len; ++i){
+		strcat(buffer, lines.lines[i]);
+		if(i != lines.len - 1){
+			strcat(buffer, " ");
+		}
+	}
+	strcpy(line, buffer);
+	free(buffer);
+	free_lines(&lines);
 }
 
 /***************************** OPCODE FUNCTION HANDLRES *****************************/

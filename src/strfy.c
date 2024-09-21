@@ -166,7 +166,6 @@ int arr_len(char **array) {
 	return length;
 }
 
-
 /* str_break: breakdown given 'src' into words (split by white spaces)*/
 LINES str_break(char *input) {
 	int q = 0;
@@ -193,15 +192,29 @@ LINES str_break(char *input) {
 	return (LINES){buff, arr_len(buff)};
 }
 
+
+/* free_lines: Free given lines */
+void free_lines(LINES *lines){
+	int i;
+	for(i = 0; i < lines->len; ++i){
+		free(lines->lines[i]);
+		lines->lines[i] = NULL;
+	}
+	lines->len = 0;
+}
+
+
 /* line_contain: check that the given 'sub' is in the 'main' */
-int line_contain(char *main, char *sub){
+int line_contain(char *src, char *word){
 	LINES bl;
-	bl = str_break(main);
+	bl = str_break(src);
 	for(int i = 0; i < bl.len; ++i){
-		if(strcmp(bl.lines[i], sub) == 0){
+		if(strcmp(bl.lines[i], word) == 0){
+			free_lines(&bl);
 			return 1;
 		}
 	}
+	free_lines(&bl);
 	return 0;
 }
 
@@ -290,3 +303,33 @@ int btoi(const char *input) {
 	return result;
 }
 
+
+
+
+/* dtoh: (Decimal TO Hex) converts given decimal into hex string with size of 'siz' */
+char *dtoh(int decimal, int size) {
+	char *hex = malloc(MALL * sizeof(char));
+	if (hex == NULL) {
+		return NULL;
+	}
+
+	hex[0] = '0';
+	hex[1] = 'x';
+	hex[size + 2] = '\0'; // Add null terminator
+
+	// Handle padding
+	for (int i = size + 1; i >= 2; i--) {
+		if (decimal == 0 && i > 2) {
+			hex[i] = '0';
+		} else {
+			int digit = decimal % 16;
+			if (digit < 10) {
+				hex[i] = '0' + digit;
+			} else {
+				hex[i] = 'A' + digit - 10;
+			}
+			decimal /= 16;
+		}
+	}
+	return hex;
+}
