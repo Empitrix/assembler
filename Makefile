@@ -1,6 +1,6 @@
 # To compile for 'linux/windows' using "gcc" compiler
 all:
-	@ gcc ./main.c -lm -o ./assembler -g
+	@ gcc ./main.c -lm -o ./assembler
 
 # To compile for 'windows' using "mingw" compiler
 windows:

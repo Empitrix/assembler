@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
-#include "src/io.h"
 #include "src/asm.h"
+#include "src/io.h"
 #include "src/structs.h"
 
 
@@ -47,6 +47,7 @@ int main(int argc, char *argv[]){
 		printf("%s%s at line (%d):\n==> %s\n\n", asmbl.err.msg, objbuff, asmbl.err.lnum, asmbl.err.oline);
 	}
 
+	clear_chace();
 	return 0;
 }
 

@@ -1,5 +1,3 @@
-#include "strfy.h"
-#include "structs.h"
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>
@@ -19,8 +17,11 @@ static LABEL _equc[MALL];
 static int _memi = 0;
 static char *_memarr[MALL];
 
+static int _is_err_malloc = 0;
 
-static ASMERR _err;
+// static ASMERR _err;
+static char *_err_msg;
+static char *_err_obj;
 
 
 void clear_chace(){
@@ -30,6 +31,14 @@ void clear_chace(){
 	memset(_labels, 0, sizeof(_labels));
 	memset(_memarr, 0, sizeof(_memarr));
 	memset(_equc, 0, sizeof(_equc));
+
+	if(_is_err_malloc){
+		free(_err_msg);
+		free(_err_obj);
+	}
+	
+
+	_is_err_malloc = 0;
 }
 
 
@@ -79,8 +88,13 @@ int get_label(char *name, arr_t src){
 
 
 void update_err(char *msg, char *obj){
-	_err.msg = msg;
-	_err.obj = obj;
+	if(_is_err_malloc == 0){
+		_err_msg = malloc(100);
+		_err_obj = malloc(100);
+		_is_err_malloc = 1;
+	}
+	strcpy(_err_msg, msg);
+	strcpy(_err_obj, obj);
 }
 
 
@@ -130,13 +144,16 @@ int extract_value(char *inpt){
 }
 
 
-char **get_err_info(){
-	char **info = malloc(2);
-	info[0] = malloc(100);
-	info[1] = malloc(100);
-	strcpy(info[0], _err.msg);
-	strcpy(info[1], _err.obj);
-	return info;
+int update_err_info(ASMERR *asmbl){
+	if(_err_msg == NULL || _err_obj == NULL){ return 0; }
+	asmbl->msg = (char *)malloc(100 * sizeof(char));
+	asmbl->obj = (char *)malloc(100 * sizeof(char));
+	strcpy(asmbl->msg, _err_msg);
+	strcpy(asmbl->obj, _err_obj);
+	if(strcmp(asmbl->msg, "") != 0 || strcmp(asmbl->obj, "") != 0){
+		return 1;
+	}
+	return 0;
 }
 
 

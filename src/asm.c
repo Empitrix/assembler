@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "strfy.h"
 #include "structs.h"
 #include "opcodes.h"
 
@@ -15,22 +14,9 @@ ASM assemble(LINES ior){
 	char **lines;
 	lines = ior.lines;
 
-	// assembely labels
-	int lidx = 0;
-	LABEL labels[MALL];
-
-	int equi = 0;
-	LABEL equ_constants[MALL];
-
 	int midx = 0;
 	int machine_code[MALL];
 
-
-	int mem_idx = 0;
-	char *mem_addr[MALL];
-
-
-	clear_chace();
 
 	asmbl.lines = malloc(MALL * sizeof(char *));
 	err.oline = malloc(100);
@@ -58,7 +44,6 @@ ASM assemble(LINES ior){
 	for(int i = 0; i < ior.len; ++i){
 		err.lnum = i + 1;
 		strcpy(err.oline, ior.lines[i]);
-		err.obj = "";
 
 		// delete comments
 		if(char_find(lines[i], ';') != -1){
@@ -79,22 +64,16 @@ ASM assemble(LINES ior){
 				lines[i][x] = ' ';
 		}
 
-		// // lable found
-		// if(char_find(lines[i], ':') != -1){
-		// 	char label_name[MALL];
-		// 	select_char_split(label_name, 0, lines[i], ':');
-		// 	str_strip(label_name);
-		// 	labels[lidx++] = (LABEL){label_name, midx};
-		// 	continue;
-		// }
-		
 		// lable found
 		if(char_find(lines[i], ':') != -1){
 			char label_name[MALL];
 			select_char_split(label_name, 0, lines[i], ':');
 			str_strip(label_name);
-			labels[lidx++] = (LABEL){label_name, midx};
-			save_label(label_name, midx, TO_LABEL);
+			STATUS result = save_label(label_name, midx, TO_LABEL);
+			if(result.type == FAILED){
+				update_err("Failed to save lable", label_name);
+				break;
+			}
 			continue;
 		}
 
@@ -106,8 +85,11 @@ ASM assemble(LINES ior){
 				update_err("Invalid EQU", "");
 				break;
 			}
-			equ_constants[equi++] = (LABEL){parts.lines[0], int_base16(parts.lines[2])};
-			save_label(parts.lines[0], int_base16(parts.lines[2]), TO_EQU);
+			STATUS result = save_label(parts.lines[0], int_base16(parts.lines[2]), TO_EQU);
+			if(result.type == FAILED){
+				update_err("Failed to save EQU", parts.lines[0]);
+				break;
+			}
 			continue;
 		}
 
@@ -148,9 +130,6 @@ ASM assemble(LINES ior){
 
 				} else {
 					// Handle Error
-					char **einfo = get_err_info();
-					err.msg = einfo[0];
-					err.obj = einfo[1];
 					break;
 				}
 				break;
@@ -159,8 +138,6 @@ ASM assemble(LINES ior){
 
 		if(opfound == 0){
 			update_err("Invalid opcode", opcode);
-			err.msg = "Invalid opcode";
-			err.obj = opcode;
 			asmbl.ecode = 1;
 			break;
 		}
@@ -173,9 +150,9 @@ ASM assemble(LINES ior){
 	}
 
 	// Update 'ASM' structure
+	asmbl.ecode = update_err_info(&err);
 	length.words = midx;
 	length.mem = get_used_mem();
-
 	asmbl.len = length;
 	asmbl.err = err;
 

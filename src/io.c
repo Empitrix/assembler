@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "rules.h"
 #include "structs.h"
-#include "utils.c"
+#include "utils.h"
 
 
 /* io_read_file: Read the lines of the given file, if length not positive file not exists */

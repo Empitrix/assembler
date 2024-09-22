@@ -6,14 +6,6 @@
 #include <string.h>
 #include "strfy.h"
 
-#pragma once
-
-/* cbuff: Clear Buffer */
-void cbuff(char *buff, int l){
-	for(int i = 0; i < l; ++i)
-		buff[i] = '\0';
-}
-
 
 /* prtprt: formatted print in (color-full) */
 int prtprt(int status, char *frmt, ...) {
