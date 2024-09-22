@@ -1,0 +1,3 @@
+[submodule "asm"]
+	path = asm
+	url = https://github.com/empitrix/asm
