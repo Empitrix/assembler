@@ -1,7 +1,15 @@
 # Assembler
-assembler for a non-standrad 8-bit CPU
+Assembler for a non-standrad 8-bit CPU.
+
+[**🖥️ Click here to try it**](https://empitrix.github.io/asm/)
+
 
 ## Build
+First clone the project (submodules are included):
+```bash
+git clone --recurse-submodules https://github.com/empitrix/assembler
+```
+
 for GNU make use:
 ```bash
 make
