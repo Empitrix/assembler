@@ -47,7 +47,7 @@ int main(int argc, char *argv[]){
 		printf("%s%s at line (%d):\n==> %s\n\n", asmbl.err.msg, objbuff, asmbl.err.lnum, asmbl.err.oline);
 	}
 
-	clear_chace();
+	clear_cache(&asmbl);
 	return 0;
 }
 

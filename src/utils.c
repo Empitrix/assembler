@@ -36,26 +36,35 @@ void show_help_info(){
 /* convert given 'hex' into int by base 16 (hexadecimal) */
 int int_base16(char *hex) {
 
-	str_replace(hex, "0x", "");  // Remove (0x)...
-	str_replace(hex, "0X", "");  // Remove (0x)...
-
-	int len = strlen(hex);
-	int decimal = 0;
-
-	for (int i = 0; i < len; i++) {
-		char c = hex[len - i - 1]; // right to left
-		int digit;
-
-		if (isdigit(c)) {
-			digit = c - '0';
-		} else {
-			digit = toupper(c) - 'A' + 10; // letters A..F
-		}
-
-		decimal += digit * pow(16, i);
+	char *endptr;
+	int num = 0;
+	// as hex (start with 0X)
+	num = strtol(hex, &endptr, 16);
+	if(strcmp(endptr, "") == 0 && (num >= 0 && num <= 255)){
+		return num;
 	}
+	return 0;
 
-	return decimal;
+	// str_replace(hex, "0x", "");  // Remove (0x)...
+	// str_replace(hex, "0X", "");  // Remove (0x)...
+
+	// int len = strlen(hex);
+	// int decimal = 0;
+
+	// for (int i = 0; i < len; i++) {
+	// 	char c = hex[len - i - 1]; // right to left
+	// 	int digit;
+
+	// 	if (isdigit(c)) {
+	// 		digit = c - '0';
+	// 	} else {
+	// 		digit = toupper(c) - 'A' + 10; // letters A..F
+	// 	}
+
+	// 	decimal += digit * pow(16, i);
+	// }
+
+	// return decimal;
 }
 
 
@@ -269,5 +278,10 @@ int is_number(char *inpt){
 		return num;
 	}
 	return -1;
+}
+
+
+void cfree(void *p){
+	p = realloc(p, 0);
 }
 

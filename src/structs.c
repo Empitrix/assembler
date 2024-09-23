@@ -63,14 +63,6 @@ typedef enum status_t {
 } status_t;
 
 
-typedef struct STATUS {
-	status_t type;
-	char *msg;
-	char *obj;
-	int value;
-} STATUS;
-
-
 typedef enum arr_t { TO_LABEL, TO_EQU } arr_t;
 
 

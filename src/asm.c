@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "strfy.h"
 #include "structs.h"
 #include "opcodes.h"
 
@@ -18,8 +19,8 @@ ASM assemble(LINES ior){
 	int machine_code[MALL];
 
 
-	asmbl.lines = malloc(MALL * sizeof(char *));
-	err.oline = malloc(100);
+	asmbl.lines = calloc(MALL, sizeof(char *));
+	err.oline = calloc(100, sizeof(char));
 	asmbl.ecode = 0;
 
 
@@ -69,8 +70,8 @@ ASM assemble(LINES ior){
 			char label_name[MALL];
 			select_char_split(label_name, 0, lines[i], ':');
 			str_strip(label_name);
-			STATUS result = save_label(label_name, midx, TO_LABEL);
-			if(result.type == FAILED){
+			int failed = save_label(label_name, midx, TO_LABEL);
+			if(failed){
 				update_err("Failed to save lable", label_name);
 				break;
 			}
@@ -79,17 +80,20 @@ ASM assemble(LINES ior){
 
 
 		if(line_contain(lines[i], "EQU")){
-			LINES parts;
-			parts = str_break(lines[i]);
-			if(parts.len != 3){
+			LINES qparts;
+			qparts = str_break(lines[i]);
+			if(qparts.len != 3){
 				update_err("Invalid EQU", "");
+				free_lines(&qparts);
 				break;
 			}
-			STATUS result = save_label(parts.lines[0], int_base16(parts.lines[2]), TO_EQU);
-			if(result.type == FAILED){
-				update_err("Failed to save EQU", parts.lines[0]);
+			int failed = save_label(qparts.lines[0], int_base16(qparts.lines[2]), TO_EQU);
+			if(failed){
+				update_err("Failed to save EQU", qparts.lines[0]);
+				free_lines(&qparts);
 				break;
 			}
+			free_lines(&qparts);
 			continue;
 		}
 
@@ -118,12 +122,15 @@ ASM assemble(LINES ior){
 				if(instruction >= 0){
 					if(line_contain(lines[i], "GOTO")){
 						replace_address(lines[i], 1, TO_LABEL, 3);
-					} else {
-						replace_address(lines[i], 1, TO_EQU, 2);
 					}
+					// if(line_contain(lines[i], "GOTO")){
+					// 	replace_address(lines[i], 1, TO_LABEL, 3);
+					// } else {
+					// 	replace_address(lines[i], 1, TO_EQU, 2);
+					// }
 
 					// Valid OP
-					asmbl.lines[line_idx] = malloc(MALL);
+					asmbl.lines[line_idx] = calloc(MALL, sizeof(char));
 					asmbl.mcode[midx++] = instruction;
 					sprintf(asmbl.lines[line_idx], "%-17s %s", lines[i], decimal_to_binary(instruction));
 					line_idx++;
@@ -147,6 +154,10 @@ ASM assemble(LINES ior){
 			asmbl.ecode = 1;
 			break;
 		}
+
+		// free_lines(&operands);
+		// free_lines(&parts);
+		// free_lines(&ior);
 	}
 
 	// Update 'ASM' structure

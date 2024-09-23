@@ -171,8 +171,8 @@ LINES str_break(char *input) {
 	int q = 0;
 	int bi = 0;
 	int f = 0;
-	char **buff = malloc(MALL * sizeof(char));
-	buff[bi] = malloc(MALL * sizeof(char));
+	char **buff = calloc(MALL, sizeof(char));
+	buff[bi] = calloc(MALL, sizeof(char));
 	int was_space = 0;
 	while(*input){
 		if(*input != ' ' || q == 1){

@@ -23,20 +23,37 @@ static int _is_err_malloc = 0;
 static char *_err_msg;
 static char *_err_obj;
 
+void clear_labels(LABEL *label, int *siz) {
+	if(*siz == 0){ return; }
+	for (int i = 0; i < *siz; ++i) {
+		if (label[i].key != NULL) {
+			free(label[i].key);  // Free dynamically allocated memory for key
+			label[i].key = NULL; // Set key to NULL to mark it as empty
+		}
+		label[i].value = 0;  // Optionally reset value to 0 or a sentinel value
+	}
+	*siz = 0;
+}
 
-void clear_chace(){
-	_lidx = 0;
-	_equi = 0;
+
+void clear_cache(ASM *asmbl){
+	clear_labels(_labels, &_lidx);
+	clear_labels(_equc, &_equi);
 	_memi = 0;
-	memset(_labels, 0, sizeof(_labels));
-	memset(_memarr, 0, sizeof(_memarr));
-	memset(_equc, 0, sizeof(_equc));
+	// memset(_memarr, 0, sizeof(_memarr));
 
 	if(_is_err_malloc){
-		free(_err_msg);
-		free(_err_obj);
+		cfree(_err_msg);
+		cfree(_err_obj);
 	}
-	
+
+	if(_is_err_malloc){
+		cfree(asmbl->err.msg);
+		asmbl->err.msg = NULL;
+
+		cfree(asmbl->err.obj);
+		asmbl->err.obj = NULL;
+	}
 
 	_is_err_malloc = 0;
 }
@@ -51,20 +68,27 @@ int get_used_mem(void){
 }
 
 /* save_lable: save a label to selected arr */
-STATUS save_label(char *name, int value, arr_t src){
+int save_label(char *name, int value, arr_t src){
 	int limit = src == TO_LABEL ? _lidx : _equi;
 
 	for(int i = 0; i < limit; ++i){
 		if(strcmp(src == TO_LABEL ? _labels[i].key : _equc[i].key, name) == 0){
-			return (STATUS){FAILED, "already exists", name, 1};
+			return 1;
 		}
 	}
+	LABEL label;
+	label.value = value;
+	label.key = calloc(100, sizeof(char));
+	strcpy(label.key, name);
+
 	if(src == TO_LABEL){
-		_labels[_lidx++] = (LABEL){name, value};
+		// _labels[_lidx++] = (LABEL){name, value};
+		_labels[_lidx++] = label;
 	} else {
-		_equc[_equi++] = (LABEL){name, value};
+		// _equc[_equi++] = (LABEL){name, value};
+		_equc[_equi++] = label;
 	}
-	return (STATUS){SUCCESS, "", "", 0};
+	return 0;
 }
 
 
@@ -89,10 +113,10 @@ int get_label(char *name, arr_t src){
 
 void update_err(char *msg, char *obj){
 	if(_is_err_malloc == 0){
-		_err_msg = malloc(100);
-		_err_obj = malloc(100);
-		_is_err_malloc = 1;
+		_err_msg = calloc(100, sizeof(char));
+		_err_obj = calloc(100, sizeof(char));
 	}
+	_is_err_malloc = 1;
 	strcpy(_err_msg, msg);
 	strcpy(_err_obj, obj);
 }
@@ -145,12 +169,17 @@ int extract_value(char *inpt){
 
 
 int update_err_info(ASMERR *asmbl){
+	if(_is_err_malloc == 0){ return 0; }
 	if(_err_msg == NULL || _err_obj == NULL){ return 0; }
-	asmbl->msg = (char *)malloc(100 * sizeof(char));
-	asmbl->obj = (char *)malloc(100 * sizeof(char));
+
+	asmbl->msg = (char *)calloc(100, sizeof(char));
+	asmbl->obj = (char *)calloc(100, sizeof(char));
 	strcpy(asmbl->msg, _err_msg);
 	strcpy(asmbl->obj, _err_obj);
-	if(strcmp(asmbl->msg, "") != 0 || strcmp(asmbl->obj, "") != 0){
+
+	// if(strcmp(asmbl->msg, "") != 0 || strcmp(asmbl->obj, "") != 0){
+	// if(strcmp(_err_msg, "") != 0 || strcmp(_err_obj, "") != 0){
+	if((int)strlen(_err_msg) >= 1){
 		return 1;
 	}
 	return 0;
@@ -276,13 +305,13 @@ void replace_address(char *line, int idx, arr_t type, int h_siz){
 		return;
 	}
 
-	char *buff = malloc(10);
+	char *buff = calloc(10, sizeof(char));
 	strcpy(buff, dtoh(lval, h_siz));
 	strcpy(lines.lines[idx], buff);
-	free(buff); buff = NULL;
+	cfree(buff);
 
 
-	char *buffer = malloc(MALL);
+	char *buffer = calloc(MALL, sizeof(char));
 	int i;
 	for(i = 0; i < lines.len; ++i){
 		strcat(buffer, lines.lines[i]);
@@ -290,9 +319,10 @@ void replace_address(char *line, int idx, arr_t type, int h_siz){
 			strcat(buffer, " ");
 		}
 	}
-	strcpy(line, buffer);
-	free(buffer);
+
 	free_lines(&lines);
+	strcpy(line, buffer);
+	buffer = realloc(buffer, 0);
 }
 
 /***************************** OPCODE FUNCTION HANDLRES *****************************/
