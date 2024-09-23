@@ -249,7 +249,7 @@ int check_dist(char *inpt){
 
 
 
-int get_dist_code(LINES operands, int code){
+int set_dist_code(LINES operands, int code){
 	if(check_op_num(operands, 2)){ return -1; }
 
 	int reg;
@@ -325,17 +325,42 @@ void replace_address(char *line, int idx, arr_t type, int h_siz){
 	buffer = realloc(buffer, 0);
 }
 
+int extract_literal(LINES operands, int code, int uerr){
+	if(check_op_num(operands, 1)){ return -1; }
+
+	int val;
+	if((val = extract_value(operands.lines[0])) < 0){
+		if(uerr){
+			update_err("Invalid literal value", operands.lines[0]);
+		}
+		return -1;
+	}
+
+	return code | val;
+}
+
+int set_by_label(LINES operands, int code){
+	char *label = operands.lines[0];
+	int lvalue = get_label(label, TO_LABEL);
+	if(lvalue >= 0){
+		return code | lvalue;
+	}
+	update_err("Invalid label", label);
+	return -1;
+}
+
 /***************************** OPCODE FUNCTION HANDLRES *****************************/
 
 /* {GOTO} */
 int handle_goto(LINES operands){
-	char *label = operands.lines[0];
-	int lvalue = get_label(label, TO_LABEL);
-	if(lvalue >= 0){
-		return 0b101000000000 | lvalue;
-	}
-	update_err("Invalid label", label);
-	return -1;
+	return set_by_label(operands, 0b101000000000);
+	// char *label = operands.lines[0];
+	// int lvalue = get_label(label, TO_LABEL);
+	// if(lvalue >= 0){
+	// 	return 0b101000000000 | lvalue;
+	// }
+	// update_err("Invalid label", label);
+	// return -1;
 }
 
 
@@ -408,23 +433,23 @@ int handle_clrf(LINES operands){
 
 /* {DECF} */
 int handle_decf(LINES operands){
-	return get_dist_code(operands, 0b000011000000);
+	return set_dist_code(operands, 0b000011000000);
 }
 
 /* {DECFSZ} */
 int handle_decfsz(LINES operands){
-	return get_dist_code(operands, 0b001011000000);
+	return set_dist_code(operands, 0b001011000000);
 }
 
 
 /* {INCF} */
 int handle_incf(LINES operands){
-	return get_dist_code(operands, 0b001010000000);
+	return set_dist_code(operands, 0b001010000000);
 }
 
 /* {INCFSZ} */
 int handle_incfsz(LINES operands){
-	return get_dist_code(operands, 0b001111000000);
+	return set_dist_code(operands, 0b001111000000);
 }
 
 /* {BTFSS} */
@@ -438,3 +463,120 @@ int handle_btfsc(LINES operands){
 	return get_tst_op(operands, 0b011100000000);
 }
 
+
+/* {ADDWF} */
+int handle_addwf(LINES operands){
+	return set_dist_code(operands, 0b000111000000);
+}
+
+/* {ANDWF} */
+int handle_andwf(LINES operands){
+	return set_dist_code(operands, 0b000101000000);
+}
+
+
+/* {COMF} */
+int handle_comf(LINES operands){
+	return set_dist_code(operands, 0b001001000000);
+}
+
+/* {IORWF} */
+int handle_iorwf(LINES operands){
+	return set_dist_code(operands, 0b000100000000);
+}
+
+
+/* {MOVF} */
+int handle_movf(LINES operands){
+	return set_dist_code(operands, 0b001000000000);
+}
+
+
+/* {RLF} */
+int handle_rlf(LINES operands){
+	return set_dist_code(operands, 0b001101000000);
+}
+
+/* {RRF} */
+int handle_rrf(LINES operands){
+	return set_dist_code(operands, 0b001100000000);
+}
+
+/* {SUBWF} */
+int handle_subwf(LINES operands){
+	return set_dist_code(operands, 0b000010000000);
+}
+
+/* {SWAPF} */
+int handle_swapf(LINES operands){
+	return set_dist_code(operands, 0b001110000000);
+}
+
+/* {XORWF} */
+int handle_xorwf(LINES operands){
+	return set_dist_code(operands, 0b000110000000);
+}
+
+
+/************ LITERAL AND CONTROLL OPERATION ************/
+
+/* {ANDLW} */
+int handle_andlw(LINES operands){
+	return extract_literal(operands, 0b111000000000, 1);
+}
+
+
+/* {CALL} */
+int handle_call(LINES operands){
+	return set_by_label(operands, 0b100100000000);
+}
+
+
+/* {CLRWDT} */
+int handle_clrwdt(LINES operands){
+	return 0b000000000100;
+}
+
+
+/* {IORLW} */
+int handle_iorlw(LINES operands){
+	return extract_literal(operands, 0b110100000000, 1);
+}
+
+
+/* {OPTION} */
+int handle_option(LINES operands){
+	return 0b000000000010;
+}
+
+
+/* {RETLW} */
+int handle_retlw(LINES operands){
+	return extract_literal(operands, 0b100000000000, 1);
+}
+
+
+/* {TRIS} */
+int handle_tris(LINES operands){
+	if(check_op_num(operands, 1)){ return -1; }
+
+	int value;
+	if((value = extract_value(operands.lines[0])) < 0){
+		update_err("Invalid literal value", operands.lines[0]);
+		return -1;
+	}
+
+
+	if(value == 6 || value == 7){
+		return 0b000000000000 | value;
+	}
+
+	update_err("Invalid \"TRIS\" value", itoar(value));
+	return -1;
+}
+
+
+/* {XORLW} */
+int handle_xorlw(LINES operands){
+	return extract_literal(operands, 0b111100000000, 1);
+}

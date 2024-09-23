@@ -40,6 +40,27 @@ ASM assemble(LINES ior){
 		{"INCFSZ", handle_incfsz},
 		{"BTFSS", handle_btfss},
 		{"BTFSC", handle_btfsc},
+
+		{"ADDWF", handle_addwf},
+		{"ANDWF", handle_andwf},
+		{"COMF", handle_comf},
+		{"IORWF", handle_iorwf},
+		{"MOVF", handle_movf},
+		{"RLF", handle_rlf},
+		{"RRF", handle_rrf},
+		{"SUBWF", handle_subwf},
+		{"SWAPF", handle_swapf},
+		{"XORWF", handle_xorwf},
+
+		{"ANDLW", handle_andlw},
+		{"CALL", handle_call},
+		{"CLRWDT", handle_clrwdt},
+		{"IORLW", handle_iorlw},
+		{"OPTION", handle_option},
+		{"RETLW", handle_retlw},
+		{"TRIS", handle_tris},
+		{"XORLW", handle_xorlw}
+
 	};
 
 	for(int i = 0; i < ior.len; ++i){
