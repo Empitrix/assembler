@@ -18,7 +18,10 @@ start:
 	;XORWF GPIO, 0
 
 	; ANDLW 0b00000000
-	; TRIS 6
+	TRIS 7
+	BSF GPIO, 0
+
+	SLEEP
 
 	GOTO start
 

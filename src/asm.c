@@ -19,8 +19,8 @@ ASM assemble(LINES ior){
 	int machine_code[MALL];
 
 
-	asmbl.lines = calloc(MALL, sizeof(char *));
-	err.oline = calloc(100, sizeof(char));
+	asmbl.lines = (char **)calloc(MALL, sizeof(char *));
+	err.oline = (char *)calloc(100, sizeof(char));
 	asmbl.ecode = 0;
 
 
@@ -127,10 +127,11 @@ ASM assemble(LINES ior){
 
 
 		int oplen = sizeof(hndls) / sizeof(hndls[0]);
-		err.msg = "";
-		err.obj = "";
+		err.msg = (char *)calloc(200, sizeof(char));
+		err.obj = (char *)calloc(200, sizeof(char));
 
 		int opfound = 0;
+		int errfound = 0;
 
 		for(int j = 0; j < oplen; ++j){
 
@@ -143,6 +144,11 @@ ASM assemble(LINES ior){
 				if(instruction >= 0){
 					if(line_contain(lines[i], "GOTO")){
 						replace_address(lines[i], 1, TO_LABEL, 3);
+					} else {
+						if(operands.len >= 1){
+							replace_address(lines[i], 1, TO_EQU, 2);
+						}
+						// replace_address(lines[i], 1, TO_EQU, 2);
 					}
 					// if(line_contain(lines[i], "GOTO")){
 					// 	replace_address(lines[i], 1, TO_LABEL, 3);
@@ -151,18 +157,22 @@ ASM assemble(LINES ior){
 					// }
 
 					// Valid OP
-					asmbl.lines[line_idx] = calloc(MALL, sizeof(char));
+					asmbl.lines[line_idx] = (char *)calloc(MALL, sizeof(char));
+					// memset(asmbl.lines[line_idx], 0, MALL * sizeof(char));
 					asmbl.mcode[midx++] = instruction;
 					sprintf(asmbl.lines[line_idx], "%-17s %s", lines[i], decimal_to_binary(instruction));
 					line_idx++;
 
 				} else {
 					// Handle Error
+					errfound = 1;
 					break;
 				}
 				break;
 			}
 		}
+
+		if(errfound){ break; }
 
 		if(opfound == 0){
 			update_err("Invalid opcode", opcode);
@@ -176,7 +186,11 @@ ASM assemble(LINES ior){
 			break;
 		}
 
-		// free_lines(&operands);
+		free_lines(&operands);
+		free(err.msg);
+		free(err.obj);
+
+		// memset(operands, 0, sizeof(operands));
 		// free_lines(&parts);
 		// free_lines(&ior);
 	}
