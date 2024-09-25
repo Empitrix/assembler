@@ -143,18 +143,15 @@ ASM assemble(LINES ior){
 
 				if(instruction >= 0){
 					if(line_contain(lines[i], "GOTO")){
-						replace_address(lines[i], 1, TO_LABEL, 3);
+						int failed;
+						if ((failed = replace_address(lines[i], 1, TO_EQU, 3))){
+							replace_address(lines[i], 1, TO_LABEL, 3);
+						}
 					} else {
 						if(operands.len >= 1){
 							replace_address(lines[i], 1, TO_EQU, 2);
 						}
-						// replace_address(lines[i], 1, TO_EQU, 2);
 					}
-					// if(line_contain(lines[i], "GOTO")){
-					// 	replace_address(lines[i], 1, TO_LABEL, 3);
-					// } else {
-					// 	replace_address(lines[i], 1, TO_EQU, 2);
-					// }
 
 					// Valid OP
 					asmbl.lines[line_idx] = (char *)calloc(MALL, sizeof(char));

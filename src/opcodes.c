@@ -286,12 +286,12 @@ int get_tst_op(LINES operands, int code){
 }
 
 
-void replace_address(char *line, int idx, arr_t type, int h_siz){
+int replace_address(char *line, int idx, arr_t type, int h_siz){
 	LINES lines = str_break(line);
 
 	if(idx > lines.len || lines.lines[idx] == NULL){
 		free_lines(&lines);
-		return;
+		return 1;
 	}
 
 	int lval;
@@ -299,7 +299,7 @@ void replace_address(char *line, int idx, arr_t type, int h_siz){
 
 	if(lval == -1){
 		free_lines(&lines);
-		return;
+		return 1;
 	}
 
 	char *buff = calloc(10, sizeof(char));
@@ -320,6 +320,7 @@ void replace_address(char *line, int idx, arr_t type, int h_siz){
 	free_lines(&lines);
 	strcpy(line, buffer);
 	buffer = realloc(buffer, 0);
+	return 0;
 }
 
 int extract_literal(LINES operands, int code, int uerr){
@@ -350,14 +351,17 @@ int set_by_label(LINES operands, int code){
 
 /* {GOTO} */
 int handle_goto(LINES operands){
-	return set_by_label(operands, 0b101000000000);
-	// char *label = operands.lines[0];
-	// int lvalue = get_label(label, TO_LABEL);
-	// if(lvalue >= 0){
-	// 	return 0b101000000000 | lvalue;
-	// }
-	// update_err("Invalid label", label);
-	// return -1;
+	char *label = operands.lines[0];
+	int lvalue = get_label(label, TO_LABEL);
+	if(lvalue >= 0){
+		return 0b101000000000 | lvalue;
+	}
+	lvalue = extract_value(label);
+	if(lvalue < 0){
+		update_err("Invalid label", label);
+		return -1;
+	}
+	return 0b101000000000 | lvalue;
 }
 
 
