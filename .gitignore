@@ -4,6 +4,7 @@
 *.bin
 /asm_out_bin
 /assembeler
+/examples/test.asm
 /assembler
 /.clangd
 out_bin

@@ -1,0 +1,5 @@
+GPIO EQU 0x06
+BSF GPIO, 0
+start:
+	RRF GPIO, 1
+	GOTO start

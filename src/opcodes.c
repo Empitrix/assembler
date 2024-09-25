@@ -150,19 +150,16 @@ int extract_value(char *inpt){
 		return num;
 	}
 
+	// as binary
+	if(detect_8bit_binary(inpt)){
+		return btoi(inpt);
+	}
 
 	// as hex (start with 0X)
 	num = strtol(inpt, &endptr, 16);
 	if(strcmp(endptr, "") == 0 && (num >= 0 && num <= 255)){
 		return num;
 	}
-
-	// as binary
-	if(detect_8bit_binary(inpt)){
-		return btoi(inpt);
-	}
-
-
 
 	return -1;
 }

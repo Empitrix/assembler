@@ -132,16 +132,16 @@ void str_replace(char *src, char *a, char *b) {
 /* char_split: split the given 'src' give given 'split' */
 char **char_split(char *src, char split){
 	char **lines;
-	lines = malloc(MALL * sizeof(char *));
+	lines = (char **)calloc(MALL, sizeof(char *));
 	int idx = 0;
 	int j = 0;
 	int l; l = (int)strlen(src);
-	lines[idx] = malloc(MALL * sizeof(char *));
+	lines[idx] = (char *)calloc(MALL, sizeof(char));
 	for(int i = 0; i < l; ++i){
 		if(src[i] != split){
 			lines[idx][j++] = src[i];
 		} else {
-			lines[++idx] = malloc(MALL * sizeof(char *));
+			lines[++idx] = (char *)calloc(MALL, sizeof(char));
 			j = 0;
 		}
 	}

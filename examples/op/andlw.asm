@@ -1,0 +1,6 @@
+GPIO EQU 0x06
+
+start:
+	MOVLW 0b00000111
+	ANDLW 0b00000101
+  GOTO start

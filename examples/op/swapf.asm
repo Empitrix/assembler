@@ -1,0 +1,7 @@
+GPIO EQU 0x06
+
+start:
+  MOVLW 0b00001111
+  MOVWF GPIO
+  SWAPF GPIO, 1
+  GOTO start

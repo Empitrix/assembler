@@ -1,0 +1,15 @@
+GPIO EQU 0x06
+MEMO EQU 0x0A
+DUMM EQU 0x0B
+
+caller:
+  BSF GPIO, 0
+  NOP
+  BCF GPIO, 0
+  INCF MEMO, 1
+  RETLW 0b00000000
+  
+start:
+  INCF DUMM, 1
+  CALL caller
+  SLEEP
