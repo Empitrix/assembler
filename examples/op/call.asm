@@ -1,15 +1,15 @@
-GPIO EQU 0x06
-MEMO EQU 0x0A
-DUMM EQU 0x0B
+GPIO EQU 0x06   ; Register 0x06 is GPIO
 
-caller:
-  BSF GPIO, 0
+LOOP:
+  CALL on       ; Turn ON the LED
   NOP
-  BCF GPIO, 0
-  INCF MEMO, 1
-  RETLW 0b00000000
-  
-start:
-  INCF DUMM, 1
-  CALL caller
-  SLEEP
+  CALL off      ; Turn OFF the LED
+  GOTO LOOP     ; Do this again (LOOP)
+
+on:
+  BSF GPIO, 0   ; Turn on the LED
+  RETLW 0       ; Back to the next instruction and load 'W' with 0
+
+off:
+  BCF GPIO, 0   ; Turn off the LED
+  RETLW 0       ; Back to the next instruction and load 'W' with 0
