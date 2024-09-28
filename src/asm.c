@@ -63,6 +63,55 @@ ASM assemble(LINES ior){
 
 	};
 
+	char *tmpline = (char *)calloc(MALL, sizeof(char));
+	// Save Labels (GLOBAL)
+	for(int i = 0; i < ior.len; ++i){
+		strcpy(tmpline, lines[i]);
+		// delete comments
+		if(char_find(tmpline, ';') != -1){
+			str_slice(tmpline, 0, char_find(lines[i], ';'));
+		}
+
+		str_strip(tmpline);
+		if(strcmp(tmpline, "") == 0){ continue; }
+
+		// lable found
+		if(char_find(tmpline, ':') != -1){
+			char label_name[MALL];
+			select_char_split(label_name, 0, lines[i], ':');
+			str_strip(label_name);
+			int failed = save_label(label_name, midx, TO_LABEL);
+			if(failed){
+				update_err("Failed to save lable", label_name);
+				break;
+			}
+			continue;
+		}
+
+		if(line_contain(tmpline, "EQU")){
+			LINES qparts;
+			qparts = str_break(tmpline);
+			if(qparts.len != 3){
+				update_err("Invalid EQU", "");
+				free_lines(&qparts);
+				break;
+			}
+			int failed = save_label(qparts.lines[0], int_base16(qparts.lines[2]), TO_EQU);
+			if(failed){
+				update_err("Failed to save EQU", qparts.lines[0]);
+				free_lines(&qparts);
+				break;
+			}
+			free_lines(&qparts);
+			continue;
+		}
+		midx++;
+	}
+	free(tmpline);
+
+	midx = 0;
+
+
 	for(int i = 0; i < ior.len; ++i){
 		err.lnum = i + 1;
 		strcpy(err.oline, ior.lines[i]);
@@ -87,36 +136,9 @@ ASM assemble(LINES ior){
 		}
 
 		// lable found
-		if(char_find(lines[i], ':') != -1){
-			char label_name[MALL];
-			select_char_split(label_name, 0, lines[i], ':');
-			str_strip(label_name);
-			int failed = save_label(label_name, midx, TO_LABEL);
-			if(failed){
-				update_err("Failed to save lable", label_name);
-				break;
-			}
-			continue;
-		}
+		if(char_find(lines[i], ':') != -1){ continue; }
+		if(line_contain(lines[i], "EQU")){ continue; }
 
-
-		if(line_contain(lines[i], "EQU")){
-			LINES qparts;
-			qparts = str_break(lines[i]);
-			if(qparts.len != 3){
-				update_err("Invalid EQU", "");
-				free_lines(&qparts);
-				break;
-			}
-			int failed = save_label(qparts.lines[0], int_base16(qparts.lines[2]), TO_EQU);
-			if(failed){
-				update_err("Failed to save EQU", qparts.lines[0]);
-				free_lines(&qparts);
-				break;
-			}
-			free_lines(&qparts);
-			continue;
-		}
 
 		LINES parts;
 		LINES operands;
@@ -184,12 +206,9 @@ ASM assemble(LINES ior){
 		}
 
 		free_lines(&operands);
+		free_lines(&parts);
 		free(err.msg);
 		free(err.obj);
-
-		// memset(operands, 0, sizeof(operands));
-		// free_lines(&parts);
-		// free_lines(&ior);
 	}
 
 	// Update 'ASM' structure
