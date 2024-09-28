@@ -1,0 +1,35 @@
+GPIO EQU 0x06
+DUMM EQU 0x0A
+PC EQU 0x02
+
+MOVWF GPIO
+BSF GPIO, 7
+BCF GPIO, 7
+
+
+MOVLW 1
+INCF DUMM, 1
+ADDWF DUMM, 0
+ADDWF PC, 1
+
+LOOP:
+  NOP
+  NOP
+  RETLW 'H'
+  RETLW 'e'
+  RETLW 'l'
+  RETLW 'l'
+  RETLW 'o'
+  RETLW ','
+  RETLW ' '
+  RETLW 'W'
+  RETLW 'o'
+  RETLW 'r'
+  RETLW 'l'
+  RETLW 'd'
+  RETLW '!'
+  RETLW '\n'
+  CLRF DUMM
+  CLRF GPIO
+  CLRW
+  GOTO 0x00
