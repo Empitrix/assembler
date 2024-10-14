@@ -234,9 +234,9 @@ int check_dist(char *inpt){
 		return -1;
 	}
 	switch (inpt[0]){
-		case '1':
+		case '1': case 'W': case 'w':
 			return 1;
-		case '0':
+		case '0': case 'F': case 'f':
 			return 0;
 		default:
 			return -1;
