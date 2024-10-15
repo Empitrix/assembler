@@ -16,8 +16,6 @@ ASM assemble(LINES ior){
 	lines = ior.lines;
 
 	int midx = 0;
-	int machine_code[MALL];
-
 
 	asmbl.lines = (char **)calloc(MALL, sizeof(char *));
 	err.oline = (char *)calloc(100, sizeof(char));

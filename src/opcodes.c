@@ -354,41 +354,44 @@ int handle_goto(LINES operands){
 	char *label = operands.lines[0];
 	int lvalue = get_label(label, TO_LABEL);
 	if(lvalue >= 0){
-		return 0b101000000000 | lvalue;
+		return 0xA00 | lvalue;  // 0b101000000000
 	}
 	lvalue = extract_value(label);
 	if(lvalue < 0){
 		update_err("Invalid label", label);
 		return -1;
 	}
-	return 0b101000000000 | lvalue;
+	return 0xA00 | lvalue;  // 0b101000000000
 }
 
 
 /* {BSF} */
 int handle_bsf(LINES operands){
-	return bsf_bcf_codes(operands, 0b010100000000);
+	return bsf_bcf_codes(operands, 0x500);  // 0b010100000000
 }
 
 
 /* {BCF} */
 int handle_bcf(LINES operands){
-	return bsf_bcf_codes(operands, 0b010000000000);
+	return bsf_bcf_codes(operands, 0x400);  // 0b010000000000
 }
 
 /* {NOP} */
-int handle_nop(LINES operands){
-	return 0b000000000000;
+// int handle_nop(LINES operands){
+int handle_nop(){
+	return 0x000;  // 0b000000000000
 }
 
 /* {SLEEP} */
-int handle_sleep(LINES operands){
-	return 0b000000000011;
+// int handle_sleep(LINES operands){
+int handle_sleep(){
+	return 0x003;  // 0b000000000011
 }
 
 /* {CLRW} */
-int handle_clrw(LINES operands){
-	return 0b000001000000;
+// int handle_clrw(LINES operands){
+int handle_clrw(){
+	return 0x040;  // 0b000001000000
 }
 
 /* {MOVLW} */
@@ -396,7 +399,7 @@ int handle_movlw(LINES operands){
 	if(check_op_num(operands, 1)){ return -1; }
 	int result;
 	if((result = extract_value(operands.lines[0])) >= 0){
-		return 0b110000000000 | result;
+		return 0xC00 | result;  // 0b110000000000
 	}
 
 	update_err("Failed to handle", operands.lines[0]);
@@ -411,7 +414,7 @@ int handle_movwf(LINES operands){
 	int result;
 	if((result = extract_value(operands.lines[0])) >= 0){
 		add_to_mem(operands.lines[0]);
-		return SET_BY_MASK(0b000000100000, 0b000000011111, result);
+		return SET_BY_MASK(0x020, 0x01F, result);  // 0b000000100000, 0b000000011111
 	}
 
 	return -1;
@@ -425,7 +428,7 @@ int handle_clrf(LINES operands){
 	int result;
 	if((result = extract_value(operands.lines[0])) >= 0){
 		add_to_mem(operands.lines[0]);
-		return SET_BY_MASK(0b000001100000, 0b000000011111, result);
+		return SET_BY_MASK(0x060, 0x01F, result);  // 0b000001100000, 0b000000011111
 	}
 
 	return -1;
@@ -434,88 +437,88 @@ int handle_clrf(LINES operands){
 
 /* {DECF} */
 int handle_decf(LINES operands){
-	return set_dist_code(operands, 0b000011000000);
+	return set_dist_code(operands, 0x0C0);  // 0b000011000000
 }
 
 /* {DECFSZ} */
 int handle_decfsz(LINES operands){
-	return set_dist_code(operands, 0b001011000000);
+	return set_dist_code(operands, 0x2C0);  // 0b001011000000
 }
 
 
 /* {INCF} */
 int handle_incf(LINES operands){
-	return set_dist_code(operands, 0b001010000000);
+	return set_dist_code(operands, 0x280);  // 0b001010000000
 }
 
 /* {INCFSZ} */
 int handle_incfsz(LINES operands){
-	return set_dist_code(operands, 0b001111000000);
+	return set_dist_code(operands, 0x3C0);  // 0b001111000000
 }
 
 /* {BTFSS} */
 int handle_btfss(LINES operands){
-	return get_tst_op(operands, 0b011000000000);
+	return get_tst_op(operands, 0x600);  // 0b011000000000
 }
 
 
 /* {BTFSC} */
 int handle_btfsc(LINES operands){
-	return get_tst_op(operands, 0b011100000000);
+	return get_tst_op(operands, 0x700);  // 0b011100000000
 }
 
 
 /* {ADDWF} */
 int handle_addwf(LINES operands){
-	return set_dist_code(operands, 0b000111000000);
+	return set_dist_code(operands, 0x1C0);  // 0b000111000000
 }
 
 /* {ANDWF} */
 int handle_andwf(LINES operands){
-	return set_dist_code(operands, 0b000101000000);
+	return set_dist_code(operands, 0x140);  // 0b000101000000
 }
 
 
 /* {COMF} */
 int handle_comf(LINES operands){
-	return set_dist_code(operands, 0b001001000000);
+	return set_dist_code(operands, 0x240);  // 0b001001000000
 }
 
 /* {IORWF} */
 int handle_iorwf(LINES operands){
-	return set_dist_code(operands, 0b000100000000);
+	return set_dist_code(operands, 0x100);  // 0b000100000000
 }
 
 
 /* {MOVF} */
 int handle_movf(LINES operands){
-	return set_dist_code(operands, 0b001000000000);
+	return set_dist_code(operands, 0x200);  // 0b001000000000
 }
 
 
 /* {RLF} */
 int handle_rlf(LINES operands){
-	return set_dist_code(operands, 0b001101000000);
+	return set_dist_code(operands, 0x340);  //0b001101000000 
 }
 
 /* {RRF} */
 int handle_rrf(LINES operands){
-	return set_dist_code(operands, 0b001100000000);
+	return set_dist_code(operands, 0x300);  // 0b001100000000
 }
 
 /* {SUBWF} */
 int handle_subwf(LINES operands){
-	return set_dist_code(operands, 0b000010000000);
+	return set_dist_code(operands, 0x080);  // 0b000010000000
 }
 
 /* {SWAPF} */
 int handle_swapf(LINES operands){
-	return set_dist_code(operands, 0b001110000000);
+	return set_dist_code(operands, 0x380);  // 0b001110000000
 }
 
 /* {XORWF} */
 int handle_xorwf(LINES operands){
-	return set_dist_code(operands, 0b000110000000);
+	return set_dist_code(operands, 0x180);  // 0b000110000000
 }
 
 
@@ -523,37 +526,39 @@ int handle_xorwf(LINES operands){
 
 /* {ANDLW} */
 int handle_andlw(LINES operands){
-	return extract_literal(operands, 0b111000000000, 1);
+	return extract_literal(operands, 0xE00, 1);  // 0b111000000000
 }
 
 
 /* {CALL} */
 int handle_call(LINES operands){
-	return set_by_label(operands, 0b100100000000);
+	return set_by_label(operands, 0x900);  // 0b100100000000
 }
 
 
 /* {CLRWDT} */
-int handle_clrwdt(LINES operands){
-	return 0b000000000100;
+// int handle_clrwdt(LINES operands){
+int handle_clrwdt(){
+	return 0x04;  // 0b000000000100
 }
 
 
 /* {IORLW} */
 int handle_iorlw(LINES operands){
-	return extract_literal(operands, 0b110100000000, 1);
+	return extract_literal(operands, 0xD00, 1);  // 0b110100000000
 }
 
 
 /* {OPTION} */
-int handle_option(LINES operands){
-	return 0b000000000010;
+// int handle_option(LINES operands){
+int handle_option(){
+	return 0x002;  // 0b000000000010
 }
 
 
 /* {RETLW} */
 int handle_retlw(LINES operands){
-	return extract_literal(operands, 0b100000000000, 1);
+	return extract_literal(operands, 0x800, 1);  // 0b100000000000
 }
 
 
@@ -569,7 +574,7 @@ int handle_tris(LINES operands){
 
 
 	if(value == 6 || value == 7){
-		return 0b000000000000 | value;
+		return 0x00 | value;  // 0b000000000000
 	}
 
 	update_err("Invalid \"TRIS\" value", itoar(value));
@@ -579,5 +584,5 @@ int handle_tris(LINES operands){
 
 /* {XORLW} */
 int handle_xorlw(LINES operands){
-	return extract_literal(operands, 0b111100000000, 1);
+	return extract_literal(operands, 0xF00, 1);  // 0b111100000000
 }

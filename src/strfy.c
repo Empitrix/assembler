@@ -47,7 +47,6 @@ void str_strip(char *str){
 
 /* char_find: return a first index to the given 'l'etter otherwise return -1 */
 int char_find(char *src, char l){
-	int i;
 	for(int i = 0; i < (int)strlen(src); i++){
 		if(src[i] == l){
 			return i;
@@ -59,7 +58,6 @@ int char_find(char *src, char l){
 
 /* char_findr (r:range): return a first index more than s to the given 'l'etter otherwise return -1 */
 int char_findr(char *src, char l, int s){
-	int i;
 	for(int i = 0; i < (int)strlen(src); i++){
 		if(src[i] == l && i >= s){
 			return i;
@@ -101,7 +99,6 @@ void str_insert(char *src, char *m, int idx) {
 void str_replacer(char *src, char *rep, int start, int end){
 	int src_len = strlen(src);
 	int rep_len = strlen(rep);
-	int new_len = src_len - (end - start + 1) + rep_len;
 	memmove(src + start + rep_len, src + end + 1, src_len - end);
 	memcpy(src + start, rep, rep_len);
 }
@@ -121,7 +118,6 @@ void str_replace(char *src, char *a, char *b) {
 	char *p = src;
 
 	while ((p = strstr(p, a)) != NULL) {
-		int offset = p - src;
 		memmove(p + len_b, p + len_a, strlen(p + len_a) + 1);
 		memcpy(p, b, len_b);
 		p += len_b;
@@ -280,7 +276,7 @@ int detect_8bit_binary(char *input) {
 	}
 
 	// Check if all characters are either '0' or '1'
-	for (i = 2; i < strlen(input); i++){
+	for (i = 2; i < (int)strlen(input); i++){
 		if (input[i] != '0' && input[i] != '1'){
 			return 0;
 		}

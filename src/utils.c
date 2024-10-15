@@ -1,5 +1,3 @@
-#include <ctype.h>
-#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -245,7 +243,10 @@ int get_total(int arr[], int siz){
 /* return number of total memory used */
 int used_mem(LABEL *equ, int equi, char **arr, int siz){
 	int size = 0;
-	int nums[MALL] = {};
+	// int nums[MALL] = { 0 };
+	int nums[MALL];
+	memset(nums, 0, sizeof(nums));
+
 	int save = 0;
 	for(int i = 0; i < siz; ++i){
 		if(any_exists(equ, equi, arr[i])){
@@ -266,7 +267,7 @@ char *itoar(int i){
 	char *result = malloc(20);
 	sprintf(result, "%d", i);
 	return result;
-};
+}
 
 
 
