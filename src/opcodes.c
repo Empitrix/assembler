@@ -276,9 +276,11 @@ int get_tst_op(LINES operands, int code){
 	}
 
 	int bit;
-	if((bit = is_number(operands.lines[1])) < 0){
-		update_err("Invalid bit", operands.lines[1]);
-		return -1;
+	if((bit = extract_value(operands.lines[1])) < 0){
+		if((bit = is_number(operands.lines[1])) < 0){
+			update_err("Invalid bit", operands.lines[1]);
+			return -1;
+		}
 	}
 
 

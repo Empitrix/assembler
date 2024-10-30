@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "rules.h"
-#include "structs.h"
+#include "types.h"
 #include "utils.h"
 
 

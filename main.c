@@ -2,7 +2,7 @@
 #include <string.h>
 #include "src/asm.h"
 #include "src/io.h"
-#include "src/structs.h"
+#include "src/types.h"
 
 
 int main(int argc, char *argv[]){

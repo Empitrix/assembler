@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "strfy.h"
-#include "structs.h"
+#include "types.h"
 #include "opcodes.h"
 
 

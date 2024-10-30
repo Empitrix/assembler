@@ -1,5 +1,5 @@
 #include "rules.h"
-#include "structs.h"
+#include "types.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
