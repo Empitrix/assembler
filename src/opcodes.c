@@ -234,9 +234,9 @@ int check_dist(char *inpt){
 		return -1;
 	}
 	switch (inpt[0]){
-		case '1': case 'W': case 'w':
+		case '1': case 'F': case 'f':
 			return 1;
-		case '0': case 'F': case 'f':
+		case '0': case 'W': case 'w':
 			return 0;
 		default:
 			return -1;
@@ -460,13 +460,13 @@ int handle_incfsz(LINES operands){
 
 /* {BTFSS} */
 int handle_btfss(LINES operands){
-	return get_tst_op(operands, 0x600);  // 0b011000000000
+	return get_tst_op(operands, 0x700);  // 0b011100000000
 }
 
 
 /* {BTFSC} */
 int handle_btfsc(LINES operands){
-	return get_tst_op(operands, 0x700);  // 0b011100000000
+	return get_tst_op(operands, 0x600);  // 0b011000000000
 }
 
 
