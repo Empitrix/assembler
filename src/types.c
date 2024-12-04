@@ -1,73 +1,92 @@
 #include "rules.h"
 #include <string.h>
 
-/* Key/Value structure (dict) */
-typedef struct LABEL {
-	char *key;
-	int value;
-} LABEL;
+typedef struct {
+	char lines[ASM_BUFF][MAX_STR];
+	int len;
+} TBL;
 
 
-/* Array of (char **) and it's length */
-typedef struct LINES {
-	char **lines;   // lines (without '\n')
-	int len;        // length of lines
-} LINES;
+typedef struct {
+	char lines[MAX_OPERAND][MAX_STR];
+	int len;
+} OPR;
 
 
-/* get_lable_key_value: return the value of the given key('l') in the 'labels' */
-int get_label_key_value(LABEL labels[], int len, char *l){
-	int i = 0;
-	for(i = 0; i < len; ++i){
-		if(strcmp(labels[i].key, l) == 0){
-			return labels[i].value;
-		}
+void copytbl(TBL *dst, TBL *src){
+	dst->len = src->len;
+	for(int i = 0; i < src->len; ++i){
+		strcpy(dst->lines[i], src->lines[i]);
 	}
-	return -1;
 }
 
 
-/* General Flags */
-typedef struct GFLAGS {
-	char *filename;   // Output filename
-	int verbose;      // Verbose option (more output)
+typedef struct {
+	int verbose;
+	char input[MAX_PATH];
+	char output[MAX_PATH];
 } GFLAGS;
 
 
-typedef struct ASMERR {
-	char *msg;    // message
-	int lnum;     // line number
-	char *oline;  // Original line
-	char *obj;    // Object (can be "" or "bit" etc...)
-} ASMERR;
+typedef struct {
+	int lnum;             // line number
+	char msg[MAX_STR];    // message
+	char line[ASM_LINE];  // assembly line
+	char obj[MAX_STR];    // object
+} ASM_ERR;
+
+void empty_err(ASM_ERR *err){
+	err->lnum = 0;
+	memset(err->msg, 0, sizeof(err->msg));
+	memset(err->obj, 0, sizeof(err->obj));
+	memset(err->line, 0, sizeof(err->line));
+}
 
 
-typedef struct ASMLEN {
-	int mem;      // Memory usage size (0...(16 + 10))
-	int words;    // flash size (words)
-} ASMLEN;
+typedef struct {
+	int mem;
+	int words;
+} ASM_LEN;
+
+void empty_asmlen(ASM_LEN *len){
+	len->mem = 0;
+	len->words = 0;
+}
+
+typedef struct {
+	int mcode[MAX_CODE];            // Machine code
+	char lines[MAX_STR][ASM_LINE];  // lines
+	ASM_ERR err;                    // Erro
+	ASM_LEN len;                    // Length
+	int ecode;                      // exit code
+} ASMBL;
 
 
-typedef struct ASM {
-	int ecode;        // '0' is fine other than '0' is error
-	int mcode[MALL];  // machine code
-	char **lines;
-	ASMLEN len;       // counting and length
-	ASMERR err;       // Error
-} ASM;
+void empty_asm(ASMBL *asmbl){
+	asmbl->ecode = 0;
+	empty_err(&asmbl->err);
+	empty_asmlen(&asmbl->len);
+	memset(asmbl->mcode, 0, sizeof(asmbl->mcode));
+	memset(asmbl->lines, 0, sizeof(asmbl->lines));
+}
 
 
-typedef enum status_t {
-	FAILED,
-	SUCCESS
-} status_t;
 
 
-typedef enum arr_t { TO_LABEL, TO_EQU } arr_t;
+typedef enum {
+	EQU_ELEMENT,
+	LABEL_ELEMENT,
+} elem_t;
+
+
+typedef struct {
+	char key[MAX_STR];
+	int value;
+} DICT;
 
 
 typedef struct OP_HNDL {
 	char *lable;
-	int (*func)(LINES);
+	int (*func)(ASMBL *, OPR *);
 } OP_HNDL;
 

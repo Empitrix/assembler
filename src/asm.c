@@ -1,25 +1,61 @@
+#include "types.h"
+#include "strfy.h"
+#include "utils.h"
+#include "opcode.h"
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
-#include "strfy.h"
-#include "types.h"
-#include "opcodes.h"
 
 
-ASM assemble(LINES ior){
-	ASM asmbl;
-	ASMERR err;
-	ASMLEN length;
-	int line_idx = 0;
+static TBL tbl;
 
-	char **lines;
-	lines = ior.lines;
+static OPR opr;
 
-	int midx = 0;
+void assemble(ASMBL *asmbl, TBL *input_tbl){
+	empty_asm(asmbl);
+	clear_elements();
+	tbl.len = 0;
+	memset(tbl.lines, 0, sizeof(tbl.lines));
 
-	asmbl.lines = (char **)calloc(MALL, sizeof(char *));
-	err.oline = (char *)calloc(100, sizeof(char));
-	asmbl.ecode = 0;
+
+	int i = 0;
+	OPR stbl;
+
+	copytbl(&tbl, input_tbl);
+
+	int codes = 0;
+	
+	for(i = 0; i < tbl.len; ++i){
+
+		skip_comment(tbl.lines[i]);
+		str_trim(tbl.lines[i]);
+		char_replace(tbl.lines[i], ',', ' ');
+
+		if(strcmp(tbl.lines[i], "") == 0){ continue; }
+
+		if(strstr(tbl.lines[i], " EQU ") != NULL){
+			str_break(tbl.lines[i], &stbl);
+			int value = extract_value(stbl.lines[2], 0);
+			int failed = save_element(EQU_ELEMENT, stbl.lines[0], value);
+			if(failed){
+				update_err(asmbl, "EQU already exists", stbl.lines[0]);
+				return;
+			}
+			continue;
+		}
+
+		if(char_contains(tbl.lines[i], ':')){
+			str_break(tbl.lines[i], &stbl);
+			str_last(stbl.lines[0], 1);
+			int failed = save_element(LABEL_ELEMENT, stbl.lines[0], codes);
+			if(failed){
+				update_err(asmbl, "Label already exists", stbl.lines[0]);
+				return;
+			}
+			continue;
+		}
+
+		codes++;
+	}
 
 
 	OP_HNDL hndls[] = {
@@ -58,164 +94,74 @@ ASM assemble(LINES ior){
 		{"RETLW", handle_retlw},
 		{"TRIS", handle_tris},
 		{"XORLW", handle_xorlw}
-
 	};
 
-	char *tmpline = (char *)calloc(MALL, sizeof(char));
-	// Save Labels (GLOBAL)
-	for(int i = 0; i < ior.len; ++i){
-		strcpy(tmpline, lines[i]);
-		// delete comments
-		if(char_find(tmpline, ';') != -1){
-			str_slice(tmpline, 0, char_find(lines[i], ';'));
-		}
-
-		str_strip(tmpline);
-		if(strcmp(tmpline, "") == 0){ continue; }
-
-		// lable found
-		if(char_find(tmpline, ':') != -1){
-			char label_name[MALL];
-			select_char_split(label_name, 0, lines[i], ':');
-			str_strip(label_name);
-			int failed = save_label(label_name, midx, TO_LABEL);
-			if(failed){
-				update_err("Failed to save lable", label_name);
-				break;
-			}
-			continue;
-		}
-
-		if(line_contain(tmpline, "EQU")){
-			LINES qparts;
-			qparts = str_break(tmpline);
-			if(qparts.len != 3){
-				update_err("Invalid EQU", "");
-				free_lines(&qparts);
-				break;
-			}
-			int failed = save_label(qparts.lines[0], int_base16(qparts.lines[2]), TO_EQU);
-			if(failed){
-				update_err("Failed to save EQU", qparts.lines[0]);
-				free_lines(&qparts);
-				break;
-			}
-			free_lines(&qparts);
-			continue;
-		}
-		midx++;
-	}
-	free(tmpline);
-
-	midx = 0;
+	int oplen = sizeof(hndls) / sizeof(hndls[0]);
 
 
-	for(int i = 0; i < ior.len; ++i){
-		err.lnum = i + 1;
-		strcpy(err.oline, ior.lines[i]);
 
-		// delete comments
-		if(char_find(lines[i], ';') != -1){
-			str_slice(lines[i], 0, char_find(lines[i], ';'));
-		}
-
-		str_strip(lines[i]);
-
-		if(strcmp(lines[i], "") == 0){
-			continue;
-		}
-
-		// replace commas with spaces
-		int q = 0;
-		for(int x = 0; x < (int)strlen(lines[i]); x++){
-			if(lines[i][x] == '\'') q = q ? 0 : 1;
-			if(lines[i][x] == ',' && q == 0)
-				lines[i][x] = ' ';
-		}
-
-		// lable found
-		if(char_find(lines[i], ':') != -1){ continue; }
-		if(line_contain(lines[i], "EQU")){ continue; }
+	for(i = 0; i < tbl.len; ++i){
+		skip_comment(tbl.lines[i]);
+		str_trim(tbl.lines[i]);
+		if(strcmp(tbl.lines[i], "") == 0){ continue; }
+		if(strstr(tbl.lines[i], " EQU ") != NULL){ continue; }
+		if(char_contains(tbl.lines[i], ':')){ continue; }
 
 
-		LINES parts;
-		LINES operands;
-		parts = str_break(lines[i]);
-		char *opcode = parts.lines[0];
-		operands = get_str_slice(parts, 1);
-		int instruction;
-
-
-		int oplen = sizeof(hndls) / sizeof(hndls[0]);
-		err.msg = (char *)calloc(200, sizeof(char));
-		err.obj = (char *)calloc(200, sizeof(char));
-
+		int j; 
 		int opfound = 0;
-		int errfound = 0;
 
-		for(int j = 0; j < oplen; ++j){
+		strcpy(asmbl->err.line, input_tbl->lines[i]);
+		asmbl->err.lnum = i + 1;
+
+		str_break(tbl.lines[i], &stbl);
+		char opcode[20];
+		strcpy(opcode, stbl.lines[0]);
+
+
+		for(j = 0; j < oplen; j++){
 
 			if(strcmp(hndls[j].lable, opcode) == 0){
 				opfound = 1;
 
-				instruction = hndls[j].func(operands);
+				// OPR opr;
+				opr.len = 0;
+				memset(opr.lines, 0, sizeof(opr.lines));
+				copy_stbl(&opr, &stbl);
 
+
+				int instruction = hndls[j].func(asmbl, &opr);
 
 				if(instruction >= 0){
-					if(line_contain(lines[i], "GOTO")){
-						int failed;
-						if ((failed = replace_address(lines[i], 1, TO_EQU, 3))){
-							replace_address(lines[i], 1, TO_LABEL, 3);
-						}
-					} else {
-						if(operands.len >= 1){
-							replace_address(lines[i], 1, TO_EQU, 2);
-						}
-					}
 
-					// Valid OP
-					asmbl.lines[line_idx] = (char *)calloc(MALL, sizeof(char));
-					// memset(asmbl.lines[line_idx], 0, MALL * sizeof(char));
-					asmbl.mcode[midx++] = instruction;
-					sprintf(asmbl.lines[line_idx], "%-17s %s", lines[i], decimal_to_binary(instruction));
-					line_idx++;
+					asmbl->mcode[asmbl->len.words] = instruction;
 
+					char line[MAX_STR] = { 0 };
+					char bin[15] = { 0 };
+					strfy_inst(&opr, line);
+					itob(instruction, bin);
+					char prefix[MAX_STR] = { 0 };
+					strcatf(prefix, "%s %s", opcode, line);
+					fill_space(prefix, 20);
+					sprintf(asmbl->lines[asmbl->len.words], "%s %20s", prefix, bin);
+
+					asmbl->len.words++;
 				} else {
-					// Handle Error
-					errfound = 1;
-					break;
+					asmbl->ecode = 1;
+					return;
 				}
-				break;
+
 			}
 		}
 
-		if(errfound){ break; }
 
 		if(opfound == 0){
-			update_err("Invalid opcode", opcode);
-			asmbl.ecode = 1;
-			break;
+			update_err(asmbl, "Invlaid opcode", stbl.lines[0]);
+			return;
 		}
 
-		// Check if there is any kind of error
-		if(strcmp(err.msg, "") != 0){
-			asmbl.ecode = 1;
-			break;
-		}
-
-		free_lines(&operands);
-		free_lines(&parts);
-		free(err.msg);
-		free(err.obj);
 	}
 
-	// Update 'ASM' structure
-	asmbl.ecode = update_err_info(&err);
-	length.words = midx;
-	length.mem = get_used_mem();
-	asmbl.len = length;
-	asmbl.err = err;
-
-	return asmbl;
+	asmbl->len.mem = get_used_mem();
 }
 

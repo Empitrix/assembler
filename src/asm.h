@@ -1,4 +1,4 @@
-#ifndef _ASSEMBLER_HEADER_
-#define _ASSEMBLER_HEADER_
+#ifndef __ASM_ASM__
+#define __ASM_ASM__
 #include "asm.c"
 #endif

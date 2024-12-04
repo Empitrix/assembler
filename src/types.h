@@ -1,4 +1,4 @@
-#ifndef _STRUCTS_HEADER_
-#define _STRUCTS_HEADER_
+#ifndef __ASM_TYPES__
+#define __ASM_TYPES__
 #include "types.c"
 #endif

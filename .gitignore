@@ -3,6 +3,9 @@
 *.exe
 *.bin
 /asm_out_bin
+/asm_out_bin.asm
+/asm_out.asm
+/asm_out
 /assembeler
 /examples/test.asm
 /assembler

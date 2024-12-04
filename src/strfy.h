@@ -1,4 +1,4 @@
-#ifndef _STRFY_HEADER_
-#define _STRFY_HEADER_
+#ifndef __ASM_STRFY__
+#define __ASM_STRFY__
 #include "strfy.c"
 #endif

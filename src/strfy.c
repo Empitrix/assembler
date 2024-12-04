@@ -1,183 +1,111 @@
-#include "rules.h"
-#include "types.h"
+#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
-#include <ctype.h>
+#include <stdarg.h>
+#include "rules.h"
+#include "types.h"
 
 
-/* reverse: reverse the given array */
-void reverse(char s[]) {
-	int c, i, j;
-	for (i = 0, j = strlen(s) - 1; i < j; i++, j--){
-		c = s[i], s[i] = s[j], s[j] = c;
+/* str_trim: trim string */
+void str_trim(char buff[]) {
+	if (buff == NULL){ return; }
+
+	// Trim leading whitespace
+	char *start = buff;
+	while (isspace((unsigned char)*start)) {
+		start++;
+	}
+
+	if (start != buff) {
+		char *dst = buff;
+		while (*start) {
+			*dst++ = *start++;
+		}
+		*dst = '\0';
+	}
+
+	char *end = buff + (int)strlen(buff) - 1;
+	while (end >= buff && isspace((unsigned char)*end)) {
+		*end-- = '\0';
 	}
 }
 
 
-/* e_idx: empty-index: return an index to the first non white space char */
-int e_idx(char *src, int l){
-	int i;
-	for(i = 0; i < l && isspace(src[i]); ++i);
-	return i;
-}
 
-
-/* shift_over: put everything after the given 'shift' at the beggining of the array */
-void shift_over(char *src, int shift, int size){
-	for(int j = 0; j < size; ++j){
-		src[j] = src[shift + j];
-	}
-}
-
-
-/* str_strip: remove all of the white-spaces around the string */
-void str_strip(char *str){
+/* skip_comment: remove comments */
+void skip_comment(char buff[]){
 	int i = 0;
-	int l = (int)strlen(str);
-	i = e_idx(str, l);
-	shift_over(str, i, l);
-	reverse(str);
-	i = e_idx(str, l);
-	shift_over(str, i, l);
-	reverse(str);
-}
+	int quote = 0;
 
+	str_trim(buff);
 
-
-/* char_find: return a first index to the given 'l'etter otherwise return -1 */
-int char_find(char *src, char l){
-	for(int i = 0; i < (int)strlen(src); i++){
-		if(src[i] == l){
-			return i;
+	while(buff[i] != '\0'){
+		if(buff[i] == '\''){ quote = quote == 0; }  // toggle quote
+		if(buff[i] == ';' && quote == 0){
+			buff[i] = '\0';
+			break;
 		}
+		i++;
 	}
-	return -1;
 }
 
 
-/* char_findr (r:range): return a first index more than s to the given 'l'etter otherwise return -1 */
-int char_findr(char *src, char l, int s){
-	for(int i = 0; i < (int)strlen(src); i++){
-		if(src[i] == l && i >= s){
-			return i;
+
+/* char_contains: return 1 if char contains oterwise 0 */
+int char_contains(char buff[], char c){
+	int i = 0;
+	int quote = 0;
+
+	str_trim(buff);
+
+	while(buff[i] != '\0'){
+		if(buff[i] == '\''){ quote = quote == 0; }  // toggle quote
+		if(buff[i] == c && quote == 0){
+			return 1;
 		}
+		i++;
 	}
-	return -1;
-}
 
-/* get slice: return the string between the given range */
-char *str_slice(char *src, int start, int end){
-	shift_over(src, start, (int)strlen(src));
-	for(int i = end; i < (int)strlen(src); ++i){
-		src[i] = '\0';
-	}
-	return src;
+	return 0;
 }
 
 
-/* char_replace: replaces all of the 's' in 'src' with 't' */
-void char_replace(char* src, char s, char t){
-	for(int i = 0; i < (int)strlen(src); ++i){
-		if(src[i] == s){
-			src[i] = t;
+/* char_contains: return 1 if char contains oterwise 0 */
+int char_replace(char buff[], char src, char dst){
+	int i = 0;
+	int quote = 0;
+
+	str_trim(buff);
+
+	while(buff[i] != '\0'){
+		if(buff[i] == '\''){ quote = quote == 0; }  // toggle quote
+		if(buff[i] == src && quote == 0){
+			buff[i] = dst;
 		}
+		i++;
 	}
+
+	return 0;
 }
 
 
-/* str_insert: insert 'm' into 'src' that starts at given 'idx' */
-void str_insert(char *src, char *m, int idx) {
-	int len1 = strlen(src);
-	int len2 = strlen(m);
-	memmove(src + idx + len2, src + idx, len1 - idx + 1);
-	memcpy(src + idx, m, len2);
-}
 
 
-/* str_replacer: replaces the range [start, end] in the 'src' with 'rep' */
-void str_replacer(char *src, char *rep, int start, int end){
-	int src_len = strlen(src);
-	int rep_len = strlen(rep);
-	memmove(src + start + rep_len, src + end + 1, src_len - end);
-	memcpy(src + start, rep, rep_len);
-}
-
-
-/* str_find: return index of the 'word' in 'src' */
-int str_find(const char *src, const char *word) {
-	char *p = strstr(src, word);
-	return p ? p - src : -1;
-}
-
-/* str_replace: replaces all of the 'a' with 'b' in the given 'src' */
-void str_replace(char *src, char *a, char *b) {
-	int len_a = strlen(a);
-	int len_b = strlen(b);
-
-	char *p = src;
-
-	while ((p = strstr(p, a)) != NULL) {
-		memmove(p + len_b, p + len_a, strlen(p + len_a) + 1);
-		memcpy(p, b, len_b);
-		p += len_b;
-	}
-}
-
-
-/* char_split: split the given 'src' give given 'split' */
-char **char_split(char *src, char split){
-	char **lines;
-	lines = (char **)calloc(MALL, sizeof(char *));
-	int idx = 0;
-	int j = 0;
-	int l; l = (int)strlen(src);
-	lines[idx] = (char *)calloc(MALL, sizeof(char));
-	for(int i = 0; i < l; ++i){
-		if(src[i] != split){
-			lines[idx][j++] = src[i];
-		} else {
-			lines[++idx] = (char *)calloc(MALL, sizeof(char));
-			j = 0;
-		}
-	}
-	return lines;
-}
-
-
-/* select_char_split: split and select */
-void select_char_split(char *target, int idx, char *src, char split){
-	char **lines;
-	lines = char_split(src, split);
-	strcpy(target, lines[idx]);
-}
-
-
-/* arr_len: returns the given 'char **' length */
-int arr_len(char **array) {
-	int length = 0;
-	while (array[length] != NULL) {
-		length++;
-	}
-	return length;
-}
-
-/* str_break: breakdown given 'src' into words (split by white spaces)*/
-LINES str_break(char *input) {
+void str_break(char input[], OPR *tbl) {
 	int q = 0;
 	int bi = 0;
 	int f = 0;
-	char **buff = (char **)calloc(MALL, sizeof(char*));
-	buff[bi] = (char *)calloc(MALL, sizeof(char));
+	memset(tbl->lines, 0, sizeof(tbl->lines));
 	int was_space = 0;
+
 	while(*input){
 		if(*input != ' ' || q == 1){
-			buff[bi][f++] = *input;
-			buff[bi][f + 1] = '\0';
+			tbl->lines[bi][f++] = *input;
+			tbl->lines[bi][f + 1] = '\0';
 			was_space = 0;
 		} else {
 			if(was_space == 0){
-				buff[++bi] = (char *)calloc(MALL, sizeof(char));
+				bi++;
 				f = 0;
 				was_space = 1;
 			}
@@ -185,147 +113,38 @@ LINES str_break(char *input) {
 		if(*input == '\'') q = q ? 0 : 1;
 		input++;
 	}
-	return (LINES){buff, arr_len(buff)};
-}
+
+	int size = sizeof(tbl->lines) / sizeof(tbl->lines[0]);
 
 
-/* free_lines: Free given lines */
-void free_lines(LINES *lines){
-	int i;
-	for(i = 0; i < lines->len; ++i){
-		free(lines->lines[i]);
-		lines->lines[i] = NULL;
-	}
-	lines->len = 0;
-}
+	tbl->len = 0;
 
-
-/* line_contain: check that the given 'sub' is in the 'main' */
-int line_contain(char *src, char *word){
-	LINES bl;
-	bl = str_break(src);
-	for(int i = 0; i < bl.len; ++i){
-		if(strcmp(bl.lines[i], word) == 0){
-			free_lines(&bl);
-			return 1;
-		}
-	}
-	free_lines(&bl);
-	return 0;
-}
-
-
-/* get_str_slice: return the given range of type (char **) */
-LINES get_str_slice(LINES src, int start){
-	LINES l;
-	l.lines = malloc(MALL * sizeof(char *));
-	int i, j;
-	j = 0;
-	for(i = start; i < src.len; ++i){
-		l.lines[j] = malloc(MALL * sizeof(char *));
-		strcpy(l.lines[j], src.lines[i]);
-		j++;
-	}
-	l.len = src.len - start;
-	if(l.len < 0){
-		l.len = 0;
-	}
-	return l;
-}
-
-
-/* hex char to int */
-int hcti(char c) {
-	if (isdigit(c)) {
-		return c - '0';
-	} else if (isupper(c)) {
-		return c - 'A' + 10;
-	} else if (islower(c)) {
-		return c - 'a' + 10;
-	} else {
-		return -1; // Invalid character
-	}
-}
-
-
-/* hex str to int | exmaple: 03H => \x03 */
-int hsti(const char *hexString) {
-	int result = 0;
-	int length = strlen(hexString);
-
-	for (int i = 0; i < length - 1; i++) {
-		int digit = hcti(hexString[i]);
-		result = (result << 4) | digit;
-	}
-	return result;
-}
-
-
-
-int detect_8bit_binary(char *input) {
-	int i;
-
-	// Check if the input starts with "0b"
-	if (strncmp(input, "0b", 2) != 0){
-		return 0;
-	}
-
-	// Check if the remaining part is 8 bits
-	if (strlen(input) - 2 != 8){
-		return 0;
-	}
-
-	// Check if all characters are either '0' or '1'
-	for (i = 2; i < (int)strlen(input); i++){
-		if (input[i] != '0' && input[i] != '1'){
-			return 0;
-		}
-	}
-
-	return 1; // Valid 8-bit binary pattern
-}
-
-
-int btoi(const char *input) {
-	int result = 0;
-	int power = 0;
-	input += 2;
-	for (int i = strlen(input) - 1; i >= 0; i--) {
-		if (input[i] == '1'){
-			result |= (1 << power); // Use bitwise OR to accumulate the value
-		}
-		power++;
-	}
-	return result;
-}
-
-
-
-
-/* dtoh: (Decimal TO Hex) converts given decimal into hex string with size of 'siz' */
-char *dtoh(int decimal, int size) {
-	char *hex = malloc(MALL * sizeof(char));
-	if (hex == NULL) {
-		return NULL;
-	}
-
-	hex[0] = '0';
-	hex[1] = 'x';
-	hex[size + 2] = '\0'; // Add null terminator
-
-	// Handle padding
-	for (int i = size + 1; i >= 2; i--) {
-		if (decimal == 0 && i > 2) {
-			hex[i] = '0';
+	for(int i = 0; i < size; ++i){
+		str_trim(tbl->lines[i]);
+		if(strcmp(tbl->lines[i], "") == 0){
+			break;
 		} else {
-			int digit = decimal % 16;
-			if (digit < 10) {
-				hex[i] = '0' + digit;
-			} else {
-				hex[i] = 'A' + digit - 10;
-			}
-			decimal /= 16;
+			tbl->len++;
 		}
 	}
-	return hex;
 }
+
+
+
+void str_last(char *buff, int last){
+	int len = (int)strlen(buff);
+	buff[len - last] = '\0';
+}
+
+
+
+/* strcatf: formated strcat */
+void strcatf(char* dst, const char * frmt, ...){
+	char tmp[MAX_STR];
+	va_list arglist;
+	va_start(arglist, frmt);
+	vsprintf(tmp, frmt, arglist);
+	va_end(arglist);
+	strcat(dst, tmp);
+}
+

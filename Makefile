@@ -1,6 +1,9 @@
 # To compile for 'linux/windows' using "gcc" compiler
 all:
-	@ gcc ./main.c -lm -o ./assembler
+	@ gcc ./main.c -o ./assembler
+
+test: all
+	@ ./assembler ./examples/test.asm -v
 
 # To compile for 'windows' using "mingw" compiler
 windows:
@@ -15,5 +18,9 @@ debug:
 	@ gcc -g -fanalyzer -Wall -Wextra -pedantic -fsanitize=undefined,address,leak ./main.c -lm -o ./assembler
 
 # Run cppcheck
-check:
+check: all
 	@ cppcheck . --check-level=exhaustive
+
+val: all
+	@ valgrind ./assembler ./examples/test.asm
+

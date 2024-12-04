@@ -1,4 +1,5 @@
-#ifndef _UTILS_HEADER_
-#define _UTILS_HEADER_
+#ifndef __ASM_UTILS__
+#define __ASM_UTILS__
 #include "utils.c"
 #endif
+
