@@ -415,9 +415,9 @@ void strfy_inst(OPR *ops, char buff[]){
 	if(first == -1){ first = 0; }
 
 	if(ops->len == 1){
-		strcatf(buff, "0x%.2X", first);
+		sstrcatf(buff, "0x%.2X", first);
 	} else if(ops->len == 2){
-		strcatf(buff, "0x%.2X %s", first, ops->lines[1]);
+		sstrcatf(buff, "0x%.2X %s", first, ops->lines[1]);
 	}
 
 }

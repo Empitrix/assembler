@@ -141,7 +141,7 @@ void assemble(ASMBL *asmbl, TBL *input_tbl){
 					strfy_inst(&opr, line);
 					itob(instruction, bin);
 					char prefix[MAX_STR] = { 0 };
-					strcatf(prefix, "%s %s", opcode, line);
+					sstrcatf(prefix, "%s %s", opcode, line);
 					fill_space(prefix, 20);
 					sprintf(asmbl->lines[asmbl->len.words], "%s %20s", prefix, bin);
 

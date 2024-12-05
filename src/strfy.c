@@ -139,7 +139,7 @@ void str_last(char *buff, int last){
 
 
 /* strcatf: formated strcat */
-void strcatf(char* dst, const char * frmt, ...){
+void sstrcatf(char* dst, const char * frmt, ...){
 	char tmp[MAX_STR];
 	va_list arglist;
 	va_start(arglist, frmt);
