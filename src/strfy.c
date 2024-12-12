@@ -61,7 +61,7 @@ int char_contains(char buff[], char c){
 	while(buff[i] != '\0'){
 		if(buff[i] == '\''){ quote = quote == 0; }  // toggle quote
 		if(buff[i] == c && quote == 0){
-			return 1;
+			return i;
 		}
 		i++;
 	}
@@ -131,9 +131,9 @@ void str_break(char input[], OPR *tbl) {
 
 
 
-void str_last(char *buff, int last){
+void str_end(char *buff, int end){
 	int len = (int)strlen(buff);
-	buff[len - last] = '\0';
+	buff[len - end] = '\0';
 }
 
 

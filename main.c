@@ -20,7 +20,7 @@ int main(int argc, char *argv[]){
 		static char err_buff[MAX_STR] = { 0 };
 		show_err(&asmbl.err, err_buff);
 		printf("%s\n", err_buff);
-		return 0;
+		return 1;
 
 	} else {
 
@@ -35,5 +35,7 @@ int main(int argc, char *argv[]){
 
 		printf("Total Words: %d\nNumber of Used Memory: %d\n", asmbl.len.words, asmbl.len.mem);
 	}
+
+	return 0;
 }
 

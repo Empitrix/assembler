@@ -33,12 +33,17 @@ int check_op_num(ASMBL *asmbl, OPR *operands, int len){
 }
 
 
+/* bit_man_codes: bit manipulation codes */
 
-int bsf_bcf_codes(ASMBL *asmbl, OPR *operands, int code){
+int bit_man_codes(ASMBL *asmbl, OPR *operands, int code){
 	if(check_op_num(asmbl, operands, 2)){ return -1; }
 
 	int result = extract_value(operands->lines[0], 1);
-	int bit = atoi(operands->lines[1]);
+	int bit;
+	if((bit = extract_value(operands->lines[1], 1)) == -1 || bit > 8 ){
+		update_err(asmbl, "Invalid bit number", operands->lines[0]);
+		return -1;
+	}
 	int test;
 
 	if((test = check_bit_reg(asmbl, bit, result, operands->lines[0])) != 0){
@@ -75,8 +80,8 @@ int check_dist(char *inpt){
 int set_dist_code(ASMBL *asmbl, OPR *operands, int code){
 	if(check_op_num(asmbl, operands, 2)){ return -1; }
 
-	int reg;
-	if((reg = extract_value(operands->lines[0], 1)) < 0){
+	int addr;
+	if((addr = extract_value(operands->lines[0], 1)) < 0){
 		update_err(asmbl, "Invalid register", operands->lines[0]);
 		return -1;
 	}
@@ -88,15 +93,15 @@ int set_dist_code(ASMBL *asmbl, OPR *operands, int code){
 	}
 
 	add_to_mem(operands->lines[0]);
-	return code | (dist << 5) | reg;
+	return code | (dist << 5) | addr;
 }
 
 
 
 int get_tst_op(ASMBL *asmbl, OPR *operands, int code){
 	if(check_op_num(asmbl, operands, 2)){ return -1; }
-	int reg;
-	if((reg = extract_value(operands->lines[0], 1)) < 0){
+	int addr;
+	if((addr = extract_value(operands->lines[0], 1)) < 0){
 		update_err(asmbl, "Invalid register", operands->lines[0]);
 		return -1;
 	}
@@ -109,8 +114,9 @@ int get_tst_op(ASMBL *asmbl, OPR *operands, int code){
 		}
 	}
 
+	add_to_mem(operands->lines[0]);
 
-	return code | (bit << 5) | reg;
+	return code | (bit << 5) | addr;
 }
 
 
@@ -167,73 +173,55 @@ int extract_literal(ASMBL *asmbl, OPR *operands, int code, int uerr){
 
 
 
-int set_by_label(ASMBL *asmbl, OPR *operands, int code){
+// int set_by_label(ASMBL *asmbl, OPR *operands, int code){
+// 	char *label = operands->lines[0];
+// 	int lvalue = get_element(LABEL_ELEMENT, label);
+// 	if(lvalue >= 0){
+// 		return code | lvalue;
+// 	}
+// 	update_err(asmbl, "Invalid label", label);
+// 	return -1;
+// }
+
+
+int set_by_label(ASMBL *asmbl, OPR*operands, int code){
+	if(check_op_num(asmbl, operands, 1)){ return -1; }
 	char *label = operands->lines[0];
 	int lvalue = get_element(LABEL_ELEMENT, label);
 	if(lvalue >= 0){
 		return code | lvalue;
-	}
-	update_err(asmbl, "Invalid label", label);
-	return -1;
-}
-
-/***************************** OPCODE FUNCTION HANDLRES *****************************/
-
-/* {GOTO} */
-int handle_goto(ASMBL *asmbl, OPR *operands){
-	char *label = operands->lines[0];
-	int lvalue = get_element(LABEL_ELEMENT, label);
-	if(lvalue >= 0){
-		return 0xA00 | lvalue;  // 0b101000000000
 	}
 	lvalue = extract_value(label, 1);
 	if(lvalue < 0){
 		update_err(asmbl, "Invalid label", label);
 		return -1;
 	}
-	return 0xA00 | lvalue;  // 0b101000000000
+	return code | lvalue;
+}
+
+/***************************** OPCODE FUNCTION HANDLRES *****************************/
+
+/* {GOTO} */
+int handle_goto(ASMBL *asmbl, OPR *operands){
+	return set_by_label(asmbl, operands, 0xA00);  // 0b101000000000
 }
 
 
 /* {BSF} */
 int handle_bsf(ASMBL *asmbl, OPR *operands){
-	return bsf_bcf_codes(asmbl, operands, 0x500);  // 0b010100000000
+	return bit_man_codes(asmbl, operands, 0x500);  // 0b010100000000
 }
 
 
 /* {BCF} */
 int handle_bcf(ASMBL *asmbl, OPR *operands){
-	return bsf_bcf_codes(asmbl, operands, 0x400);  // 0b010000000000
+	return bit_man_codes(asmbl, operands, 0x400);  // 0b010000000000
 }
 
-/* {NOP} */
-// int handle_nop(LINES operands){
-int handle_nop(ASMBL *_, OPR *__){
-	return 0x000;  // 0b000000000000
-}
-
-/* {SLEEP} */
-// int handle_sleep(LINES operands){
-int handle_sleep(ASMBL *_, OPR *__){
-	return 0x003;  // 0b000000000011
-}
-
-/* {CLRW} */
-// int handle_clrw(LINES operands){
-int handle_clrw(ASMBL *_, OPR *__){
-	return 0x040;  // 0b000001000000
-}
 
 /* {MOVLW} */
 int handle_movlw(ASMBL *asmbl, OPR *operands){
-	if(check_op_num(asmbl, operands, 1)){ return -1; }
-	int result;
-	if((result = extract_value(operands->lines[0], 1)) >= 0){
-		return 0xC00 | result;  // 0b110000000000
-	}
-
-	update_err(asmbl, "Failed to handle", operands->lines[0]);
-	return -1;
+	return extract_literal(asmbl, operands, 0xC00, 1); // 0b110000000000
 }
 
 
@@ -265,6 +253,17 @@ int handle_clrf(ASMBL *asmbl, OPR *operands){
 }
 
 
+/* {BTFSS} */
+int handle_btfss(ASMBL *asmbl, OPR *operands){
+	return get_tst_op(asmbl, operands, 0x700);  // 0b011100000000
+}
+
+
+/* {BTFSC} */
+int handle_btfsc(ASMBL *asmbl, OPR *operands){
+	return get_tst_op(asmbl, operands, 0x600);  // 0b011000000000
+}
+
 /* {DECF} */
 int handle_decf(ASMBL *asmbl, OPR *operands){
 	return set_dist_code(asmbl, operands, 0x0C0);  // 0b000011000000
@@ -285,18 +284,6 @@ int handle_incf(ASMBL *asmbl, OPR *operands){
 int handle_incfsz(ASMBL *asmbl, OPR *operands){
 	return set_dist_code(asmbl, operands, 0x3C0);  // 0b001111000000
 }
-
-/* {BTFSS} */
-int handle_btfss(ASMBL *asmbl, OPR *operands){
-	return get_tst_op(asmbl, operands, 0x700);  // 0b011100000000
-}
-
-
-/* {BTFSC} */
-int handle_btfsc(ASMBL *asmbl, OPR *operands){
-	return get_tst_op(asmbl, operands, 0x600);  // 0b011000000000
-}
-
 
 /* {ADDWF} */
 int handle_addwf(ASMBL *asmbl, OPR *operands){
@@ -366,21 +353,36 @@ int handle_call(ASMBL *asmbl, OPR *operands){
 }
 
 
-/* {CLRWDT} */
-// int handle_clrwdt(LINES operands){
-int handle_clrwdt(ASMBL *_, OPR *__){
-	return 0x04;  // 0b000000000100
-}
-
-
 /* {IORLW} */
 int handle_iorlw(ASMBL *asmbl, OPR *operands){
 	return extract_literal(asmbl, operands, 0xD00, 1);  // 0b110100000000
 }
 
 
+/* {CLRWDT} */
+int handle_clrwdt(ASMBL *_, OPR *__){
+	return 0x04;  // 0b000000000100
+}
+
+
+/* {NOP} */
+int handle_nop(ASMBL *_, OPR *__){
+	return 0x000;  // 0b000000000000
+}
+
+
+/* {SLEEP} */
+int handle_sleep(ASMBL *_, OPR *__){
+	return 0x003;  // 0b000000000011
+}
+
+
+/* {CLRW} */
+int handle_clrw(ASMBL *_, OPR *__){
+	return 0x040;  // 0b000001000000
+}
+
 /* {OPTION} */
-// int handle_option(LINES operands){
 int handle_option(ASMBL *_, OPR *__){
 	return 0x002;  // 0b000000000010
 }

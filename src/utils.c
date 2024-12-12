@@ -154,6 +154,7 @@ int save_element(elem_t type, char name[], int value){
 	return 0;
 }
 
+/* get_element: return -1 if name did not exits*/
 int get_element(elem_t type, char name[]){
 	if(elem_contains(type, name) == 0){ return -1; }
 
@@ -351,7 +352,7 @@ void shift_lines_left(OPR *tbl) {
 }
 
 
-void copy_stbl(OPR *dst, OPR *src){
+void copy_shift_oprs(OPR *dst, OPR *src){
 	int i;
 	for(i = 0; i < src->len; ++i){
 		strcpy(dst->lines[i], src->lines[i]);
